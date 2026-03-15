@@ -1,17 +1,35 @@
 from langgraph.graph import StateGraph, START, END
-from typing import TypedDict, List
+from typing import TypedDict, List, Literal
 from agent_state import AgentState
 from toc_agent.agent import toc_agent
+from toc_agent.tools import validate_yaml
 from chapter_agent.agent import chapter_agent_parallel
 from collation_agent.agent import collation_agent
+from utils.read_file import read_file_content
 from dotenv import load_dotenv
 import logging
 import asyncio
+import os
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 load_dotenv()
+
+def route_after_toc(state: AgentState) -> Literal["chapter_agent_parallel", "toc_agent"]:
+    """If TOC YAML is valid, proceed to chapters; otherwise retry toc_agent."""
+    toc_location = state.get("toc_location") or ""
+    if not toc_location or not os.path.exists(toc_location):
+        logger.warning("TOC location missing or file not found, re-running toc_agent")
+        return "toc_agent"
+    try:
+        content = read_file_content(toc_location)
+        if validate_yaml(content):
+            return "chapter_agent_parallel"
+    except Exception as e:
+        logger.warning("Failed to read or validate TOC YAML: %s, re-running toc_agent", e)
+    return "toc_agent"
+
 
 workflow = StateGraph(AgentState)
 
@@ -19,11 +37,12 @@ workflow.add_node("toc_agent", toc_agent)
 workflow.add_node("chapter_agent_parallel", chapter_agent_parallel)
 workflow.add_node("collation_agent", collation_agent)
 workflow.add_edge(START, "toc_agent")
-workflow.add_edge("toc_agent", "chapter_agent_parallel")
+workflow.add_conditional_edges("toc_agent", route_after_toc)
 workflow.add_edge("chapter_agent_parallel", "collation_agent")
 workflow.add_edge("collation_agent", END)
 
 graph = workflow.compile()
+
 
 async def main():
     initial_state: AgentState = {

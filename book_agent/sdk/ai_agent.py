@@ -8,8 +8,9 @@ from sdk.constants import GEMINI_MODEL
 import asyncio
 import uuid
 import logging
-from typing import Optional, Any
+from typing import Optional, Any, Union
 from pydantic import Field
+import json
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

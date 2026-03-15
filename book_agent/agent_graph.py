@@ -6,6 +6,7 @@ from chapter_agent.agent import chapter_agent_parallel
 from collation_agent.agent import collation_agent
 from dotenv import load_dotenv
 import logging
+import asyncio
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -24,7 +25,7 @@ workflow.add_edge("collation_agent", END)
 
 graph = workflow.compile()
 
-def main():
+async def main():
     initial_state: AgentState = {
         "topic_description": "Write a book on quantum computing.",
         "toc_location": "",
@@ -33,7 +34,7 @@ def main():
         "final_content": ""
     }
 
-    final_state = graph.invoke(initial_state)
+    final_state = await graph.ainvoke(initial_state)
     print("------------------------------------------------")
     print("Final Content:", final_state["final_content"])
     print("------------------------------------------------")
@@ -47,4 +48,4 @@ def main():
     print("------------------------------------------------")
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

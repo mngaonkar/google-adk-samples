@@ -11,6 +11,7 @@ import logging
 from typing import Optional, Any
 from pydantic import Field
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class AIAgent(Agent):
@@ -93,7 +94,7 @@ class AIAgent(Agent):
             session_id=session_id,
             new_message=content
         ):
-            logger.info(f"Event from {event.author}")
+            logger.info(f"EVENT: {event}")
             
             if event.is_final_response():
                 if event.content and event.content.parts:

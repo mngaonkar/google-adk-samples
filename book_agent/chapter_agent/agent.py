@@ -32,29 +32,51 @@ def create_chapter_agent(name: str) -> AIAgent:
         model=GEMINI_MODEL
     )
 
-def chapter_agent_parallel(state: AgentState) -> None:
+async def chapter_agent_parallel(state: AgentState) -> None:
+    """Process all chapters in parallel using async."""
     toc_file = state["toc_location"]
     toc_content = read_file_content(toc_file)
     logger.info(f"Read TOC content from {toc_file} ({len(toc_content)} characters)")
 
-    # Parse YAML file to get chapter titles (assuming a simple structure for demonstration)
+    # Parse YAML file to get chapter titles
     import yaml
     toc_data = yaml.safe_load(toc_content)
     chapter_titles = toc_data.get("chapters", [])
     logger.info(f"Extracted {len(chapter_titles)} chapter titles from TOC")
     
-    for i, title in enumerate(chapter_titles, start=1):
+    async def process_chapter(i: int, title: dict) -> tuple[int, str]:
+        """Process a single chapter and return its index and file location."""
         logger.info(f"Processing chapter {i}: {title}")
         chapter_agent = create_chapter_agent(name=f"chapter_agent_{i}")
 
-        # Read subtopic
+        # Read subtopics
         subtopics = title.get("subtopics", [])
         subtopic_text = "\n".join(subtopics)
-        logger.info(f"Subtopics for chapter {i}: {len(subtopic_text)}   characters")
-        result = chapter_agent.run_sync(subtopic_text)
+        logger.info(f"Subtopics for chapter {i}: {len(subtopic_text)} characters")
+        
+        # Run agent asynchronously
+        result = await chapter_agent.run(subtopic_text)
         chapter_response = result.get("final_response", "")
         logger.info(f"Chapter agent response for '{title}' received ({len(chapter_response)} characters)")
+        
+        # Save chapter content
         chapter_file = f"file_system/chapter_{i}_content.md"
         save_to_file(chapter_response, chapter_file)
         logger.info(f"Chapter {i} response saved to {chapter_file}")
-        state["chapter_locations"].append(chapter_file) 
+        
+        return i, chapter_file
+    
+    # Create tasks for all chapters
+    tasks = [
+        process_chapter(i, title) 
+        for i, title in enumerate(chapter_titles, start=1)
+    ]
+    
+    # Run all chapters in parallel
+    logger.info(f"Starting parallel processing of {len(tasks)} chapters...")
+    results = await asyncio.gather(*tasks)
+    
+    # Sort results by chapter index and store locations
+    results.sort(key=lambda x: x[0])
+    state["chapter_locations"].extend([file_path for _, file_path in results])
+    logger.info(f"All {len(results)} chapters processed successfully") 

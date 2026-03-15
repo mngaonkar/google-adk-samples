@@ -3,3 +3,8 @@
 __pycache__
 .adk/
 .DS_Store
+logs/
+*.log
+output/
+file_system/
+.vscode/

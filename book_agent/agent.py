@@ -12,7 +12,7 @@ import os
 import asyncio
 import uuid
 import logging
-from toc_agent.tools import save_toc_to_file
+from sdk.utils import save_to_file
 
 from tools import addition_tool
 from settings import GEMINI_MODEL, INSTRUCTION_FILE_PATH
@@ -96,7 +96,7 @@ async def main():
             assert toc_response is not None, "TOC response is None"
 
             logger.info(f"TOC agent response received: {len(toc_response)} characters")
-            save_toc_to_file(toc_response, "file_system/toc_response.md")
+            save_to_file(toc_response, "file_system/toc_response.md")
 
         if event.is_final_response():
             final_response = event.content.parts[0].text if event.content and event.content.parts else ""

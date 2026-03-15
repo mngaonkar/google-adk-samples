@@ -14,13 +14,15 @@ import uuid
 import logging
 from settings import GEMINI_MODEL
 from utils.read_file import read_file_content
-from toc_agent.tools import save_toc_to_file
 from sdk.ai_agent import AIAgent
 from agent_state import AgentState
+from sdk.utils import save_to_file
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 INSTRUCTION_FILE_PATH = "toc_agent/prompts/instructions.md"
+TOC_OUTPUT_FILE = "file_system/toc_response.md"
 OUTPUT_KEY = "toc_agent_response"
 
 agent = AIAgent(
@@ -34,5 +36,7 @@ agent = AIAgent(
 logger.info("Table of Contents agent initialized.")
 
 def toc_agent(state: AgentState) -> None:
-    agent.run_sync(state["topic_description"])
-    state["toc_location"] = "file_system/toc_response.md"
+    result = agent.run_sync(state["topic_description"])
+    save_to_file(result["final_response"], TOC_OUTPUT_FILE)
+    logger.info(f"TOC agent response saved to {TOC_OUTPUT_FILE}")
+    state["toc_location"] = TOC_OUTPUT_FILE

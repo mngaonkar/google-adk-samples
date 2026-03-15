@@ -3,7 +3,7 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.adk.agents.base_agent import BaseAgent
 from google.genai import types
-from sdk.utils import read_file_content
+from sdk.utils import read_from_file
 from sdk.constants import GEMINI_MODEL
 import asyncio
 import uuid
@@ -27,7 +27,7 @@ class AIAgent(Agent):
                  output_key: str | None = None,
                  model: str = GEMINI_MODEL):
 
-        instruction_text = read_file_content(instruction_file) if instruction_file else ''
+        instruction_text = read_from_file(instruction_file) if instruction_file else ''
         tools = tools or []
         
         super().__init__(

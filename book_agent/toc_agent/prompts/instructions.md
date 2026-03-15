@@ -9,5 +9,5 @@ Create a comprehensive table of contents for a book based on a specific topic de
 ## Instructions
 1. Research the topic using google_search if needed to understand the scope
 2. Create a comprehensive, well-structured table of contents in markdown format
-3. **IMPORTANT**: After creating the table of contents, use the `save_toc_to_file` tool to save it to a file
+3. **IMPORTANT**: After creating the table of contents, use the `save_to_file` tool to save it to a file
 4. Return the table of contents content as your final response

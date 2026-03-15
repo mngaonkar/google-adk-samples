@@ -16,7 +16,7 @@ from toc_agent.tools import save_toc_to_file
 
 from tools import addition_tool
 from settings import GEMINI_MODEL, INSTRUCTION_FILE_PATH
-from toc_agent.agent import toc_agent
+from toc_agent.agent import agent as toc_agent
 
 # Configure logging with both console and file handlers
 log_dir = "logs"
@@ -93,6 +93,8 @@ async def main():
         # Get response from event content directly
         if event.author == "toc_agent" and event.content and event.content.parts:
             toc_response = event.content.parts[0].text
+            assert toc_response is not None, "TOC response is None"
+
             logger.info(f"TOC agent response received: {len(toc_response)} characters")
             save_toc_to_file(toc_response, "file_system/toc_response.md")
 

@@ -14,6 +14,7 @@ import uuid
 import logging
 from settings import GEMINI_MODEL
 from utils.read_file import read_file_content
+from agent_state import AgentState
 
 logger = logging.getLogger(__name__)
 
@@ -33,5 +34,8 @@ def create_chapter_agent() -> Agent:
 
     return chapter_agent
 
-chapter_agent = create_chapter_agent()
+agent = create_chapter_agent()
 logger.info("Chapter agent initialized.")
+
+def chapter_agent_parallel(state: AgentState) -> None:
+    state["chapter_locations"] = ["file_system/chapter_response.md"]

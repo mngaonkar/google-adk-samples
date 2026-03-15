@@ -1,41 +1,52 @@
 from google.adk.agents.llm_agent import Agent
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
+from google.adk.agents.base_agent import BaseAgent
 from google.genai import types
-from utils import read_file_content
-from constants import GEMINI_MODEL
+from sdk.utils import read_file_content
+from sdk.constants import GEMINI_MODEL
 import asyncio
 import uuid
 import logging
-from typing import Optional
+from typing import Optional, Any
+from pydantic import Field
 
 logger = logging.getLogger(__name__)
 
 class AIAgent(Agent):
+    """Extended Agent with convenient initialization and run methods."""
+    instruction_file: str = Field(default="", exclude=True)
+    input_key_map: dict[str, str] = Field(default_factory=dict, exclude=True)
+   
     def __init__(self, 
                  name: str, 
                  instruction_file: str,
                  description: str = '',
-                 tools=None, 
-                 input_key_map: dict[str, str] = {},
-                 output_key=None,
-                 model=GEMINI_MODEL):
+                 tools: list | None = None, 
+                 input_key_map: dict[str, str] | None = None,
+                 output_key: str | None = None,
+                 model: str = GEMINI_MODEL):
 
-        self.instruction_text = read_file_content(instruction_file) if instruction_file else ''
-        self.tools = tools or []
-        self.output_key = output_key
-        self.input_key_map = input_key_map
+        instruction_text = read_file_content(instruction_file) if instruction_file else ''
+        tools = tools or []
         
         super().__init__(
             model=model,
             name=name,
             description=description,
-            instruction=self.instruction_text,
-            tools=self.tools,
-            output_key=self.output_key
+            instruction=instruction_text,
+            tools=tools,
+            output_key=output_key
         )
+        
+        # Set custom fields AFTER parent initialization
+        object.__setattr__(self, 'instruction_file', instruction_file)
+        object.__setattr__(self, 'input_key_map', input_key_map or {})
 
-    async def run(self, input_text: str, app_name: Optional[str] = None, user_id: str = "user123") -> dict:
+    async def run(self, 
+                  input_text: str, 
+                  app_name: Optional[str] = None, 
+                  user_id: str = "user123") -> dict[str, Any]:
         """
         Run the agent with the given input.
         
@@ -106,7 +117,10 @@ class AIAgent(Agent):
             "output_key_data": output_key_data
         }
     
-    def run_sync(self, input_text: str, app_name: Optional[str] = None, user_id: str = "user123") -> dict:
+    def run_sync(self, 
+                 input_text: str, 
+                 app_name: Optional[str] = None, 
+                 user_id: str = "user123") -> dict[str, Any]:
         """
         Synchronous wrapper for the run method.
         

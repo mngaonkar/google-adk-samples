@@ -14,6 +14,7 @@ import uuid
 import logging
 from settings import GEMINI_MODEL
 from utils.read_file import read_file_content
+from agent_state import AgentState
 
 logger = logging.getLogger(__name__)
 
@@ -33,5 +34,8 @@ def create_collation_agent() -> Agent:
 
     return collation_agent
 
-collation_agent = create_collation_agent()
+agent = create_collation_agent()
 logger.info("Collation agent initialized.")
+
+def collation_agent(state: AgentState) -> None:
+    state["final_content"] = "file_system/collation_response.md"

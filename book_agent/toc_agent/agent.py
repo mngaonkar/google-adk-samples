@@ -13,12 +13,38 @@ import asyncio
 import uuid
 import logging
 from settings import GEMINI_MODEL
+from utils.read_file import read_file_content
+from toc_agent.tools import save_toc_to_file
 
-toc_agent = Agent(
-    model=GEMINI_MODEL,
+logger = logging.getLogger(__name__)
+
+INSTRUCTION_FILE_PATH = "toc_agent/prompts/instructions.md"
+OUTPUT_KEY = "toc_agent_response"
+
+class TOCAgent(Agent):
+    def __init__(self, name: str, 
+                 description: str,  
+                 instruction_file: str, 
+                 tools: list,
+                 output_key: str,
+                 model: str = GEMINI_MODEL):
+        instruction_text = read_file_content(instruction_file)
+
+        super().__init__(
+            model=model,
+            name=name,
+            description=description,
+            instruction=instruction_text,
+            tools=tools,
+            output_key=output_key
+        )
+
+toc_agent = TOCAgent(
     name='toc_agent',
-    description='A helpful assistant for user questions.',
-    instruction='Answer user questions to the best of your knowledge',
+    description='An agent to create a table of contents for a book based on user provided topic.',
+    model=GEMINI_MODEL,
+    instruction_file=INSTRUCTION_FILE_PATH,
     tools=[google_search],
-    output_key="toc_response"
+    output_key=OUTPUT_KEY
 )
+logger.info("Table of Contents agent initialized.")

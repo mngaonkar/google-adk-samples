@@ -12,20 +12,39 @@ import os
 import asyncio
 import uuid
 import logging
+from toc_agent.tools import save_toc_to_file
 
 from tools import addition_tool
 from settings import GEMINI_MODEL, INSTRUCTION_FILE_PATH
 from toc_agent.agent import toc_agent
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Configure logging with both console and file handlers
+log_dir = "logs"
+os.makedirs(log_dir, exist_ok=True)
 
-def read_instructions() -> str:
-    if os.path.exists(INSTRUCTION_FILE_PATH):
-        instruction_text = open(INSTRUCTION_FILE_PATH).read()
-    else:
-        raise FileNotFoundError(f"Instructions file not found at {INSTRUCTION_FILE_PATH}")
-    return instruction_text
+# Create formatter
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+# Console handler
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+console_handler.setFormatter(formatter)
+
+# File handler
+file_handler = logging.FileHandler(f"{log_dir}/book_agent.log")
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(formatter)
+
+# Configure root logger
+logging.basicConfig(
+    level=logging.INFO,
+    handlers=[console_handler, file_handler]
+)
+
+logger = logging.getLogger(__name__)
 
 thinking_config = ThinkingConfig(
     include_thoughts=True,
@@ -63,17 +82,37 @@ async def main():
     )
     final_response = ""
 
+    # Run the agent loop
     async for event in runner.run_async(
         user_id="user123",
         session_id=session_id,
         new_message=content 
     ):
-        print(f"RESPONSE: {event.content.parts}")
+        logger.info(f"RESPONSE: {event.author}")
+        
+        # Get response from event content directly
+        if event.author == "toc_agent" and event.content and event.content.parts:
+            toc_response = event.content.parts[0].text
+            logger.info(f"TOC agent response received: {len(toc_response)} characters")
+            save_toc_to_file(toc_response, "file_system/toc_response.md")
+
         if event.is_final_response():
             final_response = event.content.parts[0].text if event.content and event.content.parts else ""
             break
     
-    print(f"FINAL RESPONSE: {final_response}")
+    logger.info(f"FINAL RESPONSE: {final_response}")
+    
+    # Access session state after the loop completes
+    session = await session_service.get_session(
+        app_name="book_agent_app",
+        user_id="user123",
+        session_id=session_id
+    )
+    toc_from_state = session.state.get('toc_agent_response')
+    logger.info(f"TOC from session state: {toc_from_state is not None}")
+    
+    
+    
 
 if __name__ == "__main__":
     asyncio.run(main())

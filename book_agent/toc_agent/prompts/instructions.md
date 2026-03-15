@@ -4,10 +4,30 @@ Create a comprehensive table of contents for a book based on a specific topic de
 
 ## Tools Available
 1. **google_search** - Search the web for information about the book topic
-2. **save_toc_to_file** - Save the created table of contents to a file
 
 ## Instructions
 1. Research the topic using google_search if needed to understand the scope
-2. Create a comprehensive, well-structured table of contents in markdown format
-3. **IMPORTANT**: After creating the table of contents, use the `save_to_file` tool to save it to a file
-4. Return the table of contents content as your final response
+2. Create a comprehensive, well-structured table of contents in YAML format with chapters and subtopics based on the book topic provided by user
+
+## Output format
+Use following YAML format for the output file.
+
+title: "Quantum Computing: A Comprehensive Guide"
+author: "AI Assistant"
+chapters:
+  - title: "Chapter 1: The Dawn of a New Computing Era"
+    subtopics:
+      - "What is Quantum Computing?"
+      - "Classical Computing vs. Quantum Computing: A Paradigm Shift"
+      - "Why Quantum? Addressing Unsolvable Problems"
+      - "Brief History of Computing Leading to Quantum"
+  - title: "Chapter 2: The Quantum Revolution - A Historical Perspective"
+    subtopics:
+      - "Roots in Quantum Mechanics: Planck, Bohr, Heisenberg, Schrödinger"
+      - "Feynman's Vision: Simulating Nature with Quantum Systems (1981)"
+      - "Benioff's Quantum Turing Machine (1980)"
+      - "Deutsch's Universal Quantum Computer (1985)"
+      - "Key Algorithmic Breakthroughs: Shor's and Grover's Algorithms"
+      - "Milestones in Hardware Development (1990s - Present)"
+
+Do not wrap YAML content for markdown formatting. Output should be a valid YAML content. Verify the YAML structure is correct and can be parsed without errors.

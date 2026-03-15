@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 INSTRUCTION_FILE_PATH = "toc_agent/prompts/instructions.md"
-TOC_OUTPUT_FILE = "file_system/toc_response.md"
+TOC_OUTPUT_FILE = "file_system/toc_response.yaml"
 OUTPUT_KEY = "toc_agent_response"
 
 agent = AIAgent(
@@ -35,8 +35,10 @@ agent = AIAgent(
 )
 logger.info("Table of Contents agent initialized.")
 
-def toc_agent(state: AgentState) -> None:
+def toc_agent(state: AgentState) -> AgentState:
     result = agent.run_sync(state["topic_description"])
     save_to_file(result["final_response"], TOC_OUTPUT_FILE)
     logger.info(f"TOC agent response saved to {TOC_OUTPUT_FILE}")
     state["toc_location"] = TOC_OUTPUT_FILE
+
+    return state

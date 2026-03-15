@@ -1,3 +1,9 @@
 # Table of contents Agent Instructions
 ## Objective
-Create a comprehensive table of contents for a book based on a specific topic description provided by user. Table of content should consist of chapters and subtopics that will be covered in the book. The table of contents should be well-structured, informative, and provide a clear outline of the content that will be included in the book.
+Create comprehensive chapter content for a book based on the subtopics provided for each chapter. The chapter content should be well-researched, informative, and structured in a way that effectively covers the subtopics outlined in the table of contents.
+
+## Tools available
+Use google_search tool to research and gather information on the subtopics provided for each chapter.
+
+## Output format
+The output should be a detailed chapter content in markdown format, covering all the subtopics provided for the chapter. The content should be well-organized with appropriate headings, subheadings, and bullet points where necessary to enhance readability.

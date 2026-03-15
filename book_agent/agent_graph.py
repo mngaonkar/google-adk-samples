@@ -43,28 +43,45 @@ workflow.add_edge("collation_agent", END)
 
 graph = workflow.compile()
 
+AGENT_VERSION = "v0.1"
+RELEASE_DATE = "2026-03-15"
+AGENT_NAME = f"Book Agent {AGENT_VERSION} ({RELEASE_DATE})"
 
 async def main():
-    initial_state: AgentState = {
-        "topic_description": "Write a book on quantum computing.",
-        "toc_location": "",
-        "chapter_locations": [],
-        "reasoning_steps": [],
-        "final_content": ""
-    }
+    print("------------------------------------------------")
+    print(f"{AGENT_NAME}")
+    print("------------------------------------------------")
 
-    final_state = await graph.ainvoke(initial_state)
-    print("------------------------------------------------")
-    print("Final Content:", final_state["final_content"])
-    print("------------------------------------------------")
-    print("TOC Location:", final_state["toc_location"])
-    print("------------------------------------------------")
-    print("Chapter Locations:", final_state["chapter_locations"])
-    print("------------------------------------------------")
-    print("Reasoning Steps:")
-    for step in final_state["reasoning_steps"]:
-        print(step)
-    print("------------------------------------------------")
+    while True:
+        input_topic = input(f"[{AGENT_NAME}] Enter the topic for the book or 'exit' to quit: ")
+        if input_topic.lower() == "exit":
+            break
+
+        initial_state: AgentState = {
+            "topic_description": input_topic,
+            "toc_location": "",
+            "chapter_locations": [],
+            "reasoning_steps": [],
+            "final_content": ""
+        }
+
+        print(f"[{AGENT_NAME}] Creating the book...")
+
+        final_state = await graph.ainvoke(initial_state)
+        print("------------------------------------------------")
+        print("Final Content:", final_state["final_content"])
+        print("------------------------------------------------")
+        print("TOC Location:", final_state["toc_location"])
+        print("------------------------------------------------")
+        print("Chapter Locations:", final_state["chapter_locations"])
+        print("------------------------------------------------")
+        print("Reasoning Steps:")
+        for step in final_state["reasoning_steps"]:
+            print(step)
+        print("------------------------------------------------")
+
+        print(f"[{AGENT_NAME}] Book created successfully.")
+        print("------------------------------------------------")
 
 if __name__ == "__main__":
     asyncio.run(main())

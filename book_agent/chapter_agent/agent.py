@@ -45,22 +45,22 @@ async def chapter_agent_parallel(state: AgentState) -> None:
     chapter_titles = toc_data.get("chapters", [])
     logger.info(f"Extracted {len(chapter_titles)} chapter titles from TOC")
     
-    async def process_chapter(i: int, title: dict) -> tuple[int, str]:
+    async def process_chapter(i: int, chapter: dict) -> tuple[int, str]:
         """Process a single chapter and return its index and file location."""
-        logger.info(f"Processing chapter {i}: {title}")
+        logger.info(f"Processing chapter {i}: {chapter}")
         chapter_agent = create_chapter_agent(name=f"chapter_agent_{i}")
 
         # Read subtopics
-        subtopics = title.get("subtopics", [])
+        subtopics = chapter.get("subtopics", [])
         subtopic_text = "\n".join(subtopics)
         logger.info(f"Subtopics for chapter {i}: {len(subtopic_text)} characters")
         
         # Run agent asynchronously
-        user_prompt = f"subtopics = {subtopics}"
+        user_prompt = f"title = {chapter.get('title')}\n subtopics = {subtopics}"
 
         result = await chapter_agent.run(user_prompt)
         chapter_response = result.get("final_response", "")
-        logger.info(f"Chapter agent response for '{title}' received ({len(chapter_response)} characters)")
+        logger.info(f"Chapter agent response for '{chapter.get('title')}' received ({len(chapter_response)} characters)")
         
         # Save chapter content
         chapter_file = f"file_system/chapter_{i}_content.md"
@@ -71,8 +71,8 @@ async def chapter_agent_parallel(state: AgentState) -> None:
     
     # Create tasks for all chapters
     tasks = [
-        process_chapter(i, title) 
-        for i, title in enumerate(chapter_titles, start=1)
+        process_chapter(i, chapter) 
+        for i, chapter in enumerate(chapter_titles, start=1)
     ]
     
     # Run all chapters in parallel

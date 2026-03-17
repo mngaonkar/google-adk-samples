@@ -11,7 +11,7 @@ metadata:
 ## Objective
 Create a professional PDF book from chapter markdown files with an optional Table of Contents.
 
-## Inputs
+## Input
   - `chapter_locations`: List of paths to chapter markdown files
   - `toc_location`: Optional path to Table of Contents markdown file
 

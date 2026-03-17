@@ -1,3 +1,11 @@
+---
+name: chapter_agent
+description: Create a comprehensive chapter content based on the subtopics provided by user.
+license: Apache-2.0
+metadata:
+  author: "Mahadev Gaonkar"
+  version: "1.0"
+---
 # Chapter Agent
 ## Objective
 Create comprehensive chapter content for a book based on the subtopics provided for each chapter. The chapter content should be well-researched, informative, and structured in a way that effectively covers the subtopics outlined in the table of contents.

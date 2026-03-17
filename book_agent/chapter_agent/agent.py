@@ -20,7 +20,8 @@ from sdk.utils import save_to_file
 
 logger = logging.getLogger(__name__)
 
-INSTRUCTION_FILE_PATH = "chapter_agent/prompts/instructions.md"
+AGENT_NAME = "chapter_agent"
+INSTRUCTION_FILE_PATH = AGENT_NAME + "/SKILL.md"
 
 def create_chapter_agent(name: str) -> AIAgent:
     return AIAgent(

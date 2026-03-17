@@ -17,11 +17,12 @@ from utils.read_file import read_file_content
 from agent_state import AgentState
 from sdk.ai_agent import AIAgent
 from sdk.utils import save_to_file
-from collation_agent.tools import create_pdf_file
+from collation_agent.scripts.create_pdf_file import create_pdf_file
 
 logger = logging.getLogger(__name__)
 
-INSTRUCTION_FILE_PATH = "collation_agent/prompts/instructions.md"
+AGENT_NAME = "collation_agent"
+INSTRUCTION_FILE_PATH = AGENT_NAME + "/SKILL.md"
 OUTPUT_PDF_LOCATION = "file_system/collation_response.pdf"
 
 def create_collation_agent(name: str) -> AIAgent:

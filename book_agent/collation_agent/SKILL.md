@@ -1,3 +1,11 @@
+---
+name: collation_agent
+description: Create a final book content by collating all chapter contents.
+license: Apache-2.0
+metadata:
+  author: "Mahadev Gaonkar"
+  version: "1.0"
+---
 # Collation Agent
 ## Objective
 Create a PDF book from the list of markdown files provided as input to the agent.

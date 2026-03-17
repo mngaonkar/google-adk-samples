@@ -21,7 +21,8 @@ from sdk.utils import save_to_file
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-INSTRUCTION_FILE_PATH = "toc_agent/prompts/instructions.md"
+AGENT_NAME = "toc_agent"
+INSTRUCTION_FILE_PATH = AGENT_NAME + "/SKILL.md"
 TOC_OUTPUT_FILE = "file_system/toc_response.yaml"
 OUTPUT_KEY = "toc_agent_response"
 

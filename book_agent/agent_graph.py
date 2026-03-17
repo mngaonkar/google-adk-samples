@@ -2,7 +2,7 @@ from langgraph.graph import StateGraph, START, END
 from typing import TypedDict, List, Literal
 from agent_state import AgentState
 from toc_agent.agent import toc_agent
-from toc_agent.tools import validate_yaml
+from toc_agent.scripts.validate_yaml import validate_yaml
 from chapter_agent.agent import chapter_agent_parallel
 from collation_agent.agent import collation_agent
 from utils.read_file import read_file_content

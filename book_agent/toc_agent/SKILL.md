@@ -1,9 +1,19 @@
+---
+name: toc-agent
+description: Create a table of content from the book topic provided by user.
+license: Apache-2.0
+metadata:
+  author: "Mahadev Gaonkar"
+  version: "1.0"
+---
+
 # Table of contents Agent
 ## Objective
 Create a comprehensive table of contents for a book based on a specific topic description provided by user. Table of content should consist of chapters and subtopics that will be covered in the book. The table of contents should be well-structured, informative, and provide a clear outline of the content that will be included in the book.
 
 ## Tools available
 1. **google_search** - Search the web for information about the book topic
+2. **validate_yaml** - scripts/validate_yaml.py - Validate if the generated YAML content is syntactically correct and can be parsed without errors
 
 ## Instructions
 1. Research the topic using google_search if needed to understand the scope

@@ -41,15 +41,21 @@ logger.info("Collation agent initialized.")
 def collation_agent(state: AgentState) -> AgentState:
     """Collate chapter content into a single PDF file."""
     chapter_locations = state["chapter_locations"]
+    toc_location = state.get("toc_location", "")
     collation_agent = create_collation_agent(name="collation_agent")
 
-    user_prompt = f"Create a PDF book from the list of markdown files provided: {chapter_locations}"
+    user_prompt = f"""Create a PDF book from the following inputs:
+    - toc_location: Table of Contents location: {toc_location}
+    - chapter_locations: Chapter markdown files: {chapter_locations}
+    
+    Use the create_pdf_file tool with both the chapter_locations list and toc_location."""
+    
     result = collation_agent.run_sync(user_prompt)
     logger.info(f"Collation agent response: {result}")
 
     collation_response = result["final_response"]
     save_to_file(collation_response, OUTPUT_PDF_LOCATION)
-    state["collation_location"] = OUTPUT_PDF_LOCATION
+    state["final_content"] = OUTPUT_PDF_LOCATION
     logger.info(f"Collation agent response saved to {OUTPUT_PDF_LOCATION}")
 
     return state

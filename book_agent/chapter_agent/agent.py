@@ -56,7 +56,9 @@ async def chapter_agent_parallel(state: AgentState) -> None:
         logger.info(f"Subtopics for chapter {i}: {len(subtopic_text)} characters")
         
         # Run agent asynchronously
-        result = await chapter_agent.run(subtopic_text)
+        user_prompt = f"subtopics = {subtopics}"
+
+        result = await chapter_agent.run(user_prompt)
         chapter_response = result.get("final_response", "")
         logger.info(f"Chapter agent response for '{title}' received ({len(chapter_response)} characters)")
         

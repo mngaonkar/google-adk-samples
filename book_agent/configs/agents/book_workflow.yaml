@@ -1,0 +1,56 @@
+# Book Generation Workflow Configuration
+# This file defines the LangGraph StateGraph workflow for book generation
+
+# Workflow metadata
+name: book_generation_workflow
+description: Multi-agent workflow for generating books with TOC, chapters, and PDF collation
+state_type: AgentState
+
+# Workflow nodes - each node represents an agent or processing step
+nodes:
+  - name: toc_agent
+    description: Generate table of contents from topic
+    function: toc_agent
+    
+  - name: chapter_agent_parallel
+    description: Generate all book chapters in parallel
+    function: chapter_agent_parallel
+    
+  - name: collation_agent
+    description: Collate chapters into final PDF
+    function: collation_agent
+
+# Workflow edges - define the execution flow
+edges:
+  # Simple edges (node -> node)
+  - from: START
+    to: toc_agent
+    type: simple
+    
+  - from: chapter_agent_parallel
+    to: collation_agent
+    type: simple
+    
+  - from: collation_agent
+    to: END
+    type: simple
+
+# Conditional edges - routing based on state
+conditional_edges:
+  - from: toc_agent
+    router_function: route_after_toc
+    description: Route to chapter generation or end based on TOC validation
+    # Possible routes:
+    # - chapter_agent_parallel: if TOC is valid
+    # - END: if TOC validation fails
+
+# Execution order visualization:
+# START 
+#   ↓
+# toc_agent 
+#   ↓ (conditional: route_after_toc)
+# chapter_agent_parallel (parallel execution)
+#   ↓
+# collation_agent
+#   ↓
+# END

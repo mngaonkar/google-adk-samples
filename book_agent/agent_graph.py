@@ -10,6 +10,9 @@ from dotenv import load_dotenv
 import logging
 import asyncio
 import os
+from sdk.workflow_registry import WorkflowRegistry
+from sdk.workflow_factory import WorkflowFactory
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -31,17 +34,16 @@ def route_after_toc(state: AgentState) -> Literal["chapter_agent_parallel", "toc
     return "toc_agent"
 
 
-workflow = StateGraph(AgentState)
+WorkflowRegistry.register("toc_agent", toc_agent)
+WorkflowRegistry.register("chapter_agent_parallel", chapter_agent_parallel)
+WorkflowRegistry.register("collation_agent", collation_agent)
+WorkflowRegistry.register("route_after_toc", route_after_toc)
 
-workflow.add_node("toc_agent", toc_agent)
-workflow.add_node("chapter_agent_parallel", chapter_agent_parallel)
-workflow.add_node("collation_agent", collation_agent)
-workflow.add_edge(START, "toc_agent")
-workflow.add_conditional_edges("toc_agent", route_after_toc)
-workflow.add_edge("chapter_agent_parallel", "collation_agent")
-workflow.add_edge("collation_agent", END)
+graph = WorkflowFactory.compile_from_yaml(
+        'configs/agents/book_workflow.yaml',
+        AgentState
+    )
 
-graph = workflow.compile()
 
 AGENT_VERSION = "v0.1"
 RELEASE_DATE = "2026-03-15"

@@ -4,7 +4,7 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.agents.base_agent import BaseAgent
 from google.genai import types
 from sdk.utils import read_from_file
-from sdk.constants import GEMINI_MODEL
+from sdk.constants import GEMINI_MODEL, MAX_REMOTE_CALLS
 import asyncio
 import uuid
 import logging
@@ -32,12 +32,22 @@ class AIAgent(Agent):
         instruction_text = read_from_file(instruction_file) if instruction_file else ''
         tools = tools or []
         
+        # Define your AFC config (change max_remote_calls here)
+        afc_config = types.AutomaticFunctionCallingConfig(
+            maximum_remote_calls=MAX_REMOTE_CALLS,  # e.g., limit to 5 rounds of tool calls (default is 10)
+            # disable=True,          # Optional: fully disable auto-loop if needed
+        )
+
         super().__init__(
             model=model,
             name=name,
             description=description,
             instruction=instruction_text,
             tools=tools,
+            generate_content_config=types.GenerateContentConfig(
+                automatic_function_calling=afc_config,
+                # Add other Gemini configs if needed: temperature=0.7, max_output_tokens=2048, etc.
+            ),
             output_key=output_key
         )
         

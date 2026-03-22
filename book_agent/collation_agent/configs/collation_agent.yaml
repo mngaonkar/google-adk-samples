@@ -3,7 +3,7 @@
 
 name: collation_agent
 description: An agent to create single PDF file for a book based on chapter content provided for the book.
-instruction_file: collation_agent/SKILL.md
+instruction_file: skills/collation/SKILL.md
 tools:
   - create_pdf_file
 skills:

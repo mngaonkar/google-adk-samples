@@ -3,7 +3,7 @@
 
 name: toc_agent
 description: An agent to create a table of contents for a book based on user provided topic.
-instruction_file: toc_agent/SKILL.md
+instruction_file: skills/toc/SKILL.md
 tools:
   - google_search
 skills:

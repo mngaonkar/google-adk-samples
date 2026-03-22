@@ -3,7 +3,7 @@
 
 name: chapter_agent
 description: An agent to create chapter content for a book based on subtopics provided for the chapter.
-instruction_file: chapter_agent/SKILL.md
+instruction_file: skills/chapter/SKILL.md
 tools:
   - google_search
 skills:

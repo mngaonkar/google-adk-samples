@@ -6,5 +6,7 @@ description: An agent to create chapter content for a book based on subtopics pr
 instruction_file: chapter_agent/SKILL.md
 tools:
   - google_search
+skills:
+  - chapter_agent
 output_key: chapter_agent_response
 model: gemini-2.5-flash

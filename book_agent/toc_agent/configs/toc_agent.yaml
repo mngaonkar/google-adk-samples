@@ -6,5 +6,7 @@ description: An agent to create a table of contents for a book based on user pro
 instruction_file: toc_agent/SKILL.md
 tools:
   - google_search
+skills:
+  - toc_agent
 output_key: toc_agent_response
 model: gemini-2.5-flash

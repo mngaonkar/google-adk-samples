@@ -6,5 +6,7 @@ description: An agent to create single PDF file for a book based on chapter cont
 instruction_file: collation_agent/SKILL.md
 tools:
   - create_pdf_file
+skills:
+  - collation_agent
 output_key: collation_response
 model: gemini-2.5-flash

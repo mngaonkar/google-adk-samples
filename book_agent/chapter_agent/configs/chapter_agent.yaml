@@ -1,0 +1,10 @@
+# Chapter Agent Configuration
+# This file defines the configuration for the chapter generation agent
+
+name: chapter_agent
+description: An agent to create chapter content for a book based on subtopics provided for the chapter.
+instruction_file: chapter_agent/SKILL.md
+tools:
+  - google_search
+output_key: chapter_agent_response
+model: gemini-2.5-flash

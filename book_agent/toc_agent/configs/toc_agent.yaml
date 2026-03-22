@@ -1,0 +1,10 @@
+# Table of Contents Agent Configuration
+# This file defines the configuration for the TOC agent
+
+name: toc_agent
+description: An agent to create a table of contents for a book based on user provided topic.
+instruction_file: toc_agent/SKILL.md
+tools:
+  - google_search
+output_key: toc_agent_response
+model: gemini-2.5-flash

@@ -96,7 +96,7 @@ async def main():
             assert toc_response is not None, "TOC response is None"
 
             logger.info(f"TOC agent response received: {len(toc_response)} characters")
-            save_to_file(toc_response, "file_system/toc_response.md")
+            save_to_file(toc_response, "workspace/toc_response.md")
 
         if event.is_final_response():
             final_response = event.content.parts[0].text if event.content and event.content.parts else ""

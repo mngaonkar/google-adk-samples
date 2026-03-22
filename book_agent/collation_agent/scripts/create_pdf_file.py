@@ -18,7 +18,7 @@ def create_pdf_file(chapter_locations: list[str], toc_location: Optional[str] = 
         pdf_file: str - path to the created PDF file
     """
 
-    pdf_file = f"file_system/collation_response_{uuid.uuid4()}.pdf"
+    pdf_file = f"workspace/collation_response_{uuid.uuid4()}.pdf"
     
     # Enable TOC with level 2 (includes # and ## headings)
     markdown_pdf = MarkdownPdf(toc_level=2)
@@ -53,11 +53,11 @@ def create_pdf_file(chapter_locations: list[str], toc_location: Optional[str] = 
 
 def main():
     chapter_locations = [
-        "file_system/chapter_1_content.md",
-        "file_system/chapter_2_content.md",
-        "file_system/chapter_3_content.md"
+        "workspace/chapter_1_content.md",
+        "workspace/chapter_2_content.md",
+        "workspace/chapter_3_content.md"
     ]
-    toc_location = "file_system/table_of_contents.md"  # Optional TOC file
+    toc_location = "workspace/table_of_contents.md"  # Optional TOC file
     
     pdf_file = create_pdf_file(chapter_locations, toc_location)
     print(f"PDF created: {pdf_file}")

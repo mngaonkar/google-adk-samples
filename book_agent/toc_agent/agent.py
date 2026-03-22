@@ -17,23 +17,18 @@ from utils.read_file import read_file_content
 from sdk.ai_agent import AIAgent
 from agent_state import AgentState
 from sdk.utils import save_to_file
+from sdk.agent_factory import AgentFactory
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 AGENT_NAME = "toc_agent"
 INSTRUCTION_FILE_PATH = AGENT_NAME + "/SKILL.md"
-TOC_OUTPUT_FILE = "file_system/toc_response.yaml"
+TOC_OUTPUT_FILE = "workspace/toc_response.yaml"
 OUTPUT_KEY = "toc_agent_response"
 
-agent = AIAgent(
-    name='toc_agent',
-    description='An agent to create a table of contents for a book based on user provided topic.',
-    instruction_file=INSTRUCTION_FILE_PATH,
-    tools=[google_search],
-    output_key=OUTPUT_KEY,
-    model=GEMINI_MODEL
-)
+agent = AgentFactory.from_yaml_file('toc_agent/configs/toc_agent.yaml')
+
 logger.info("Table of Contents agent initialized.")
 
 def toc_agent(state: AgentState) -> AgentState:

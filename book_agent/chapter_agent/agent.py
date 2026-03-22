@@ -17,6 +17,7 @@ from utils.read_file import read_file_content
 from agent_state import AgentState
 from sdk.ai_agent import AIAgent
 from sdk.utils import save_to_file
+from sdk.agent_factory import AgentFactory
 
 logger = logging.getLogger(__name__)
 
@@ -24,14 +25,11 @@ AGENT_NAME = "chapter_agent"
 INSTRUCTION_FILE_PATH = AGENT_NAME + "/SKILL.md"
 
 def create_chapter_agent(name: str) -> AIAgent:
-    return AIAgent(
-        name=name,
-        description='An agent to create chapter content for a book based on subtopics provided for the chapter.',
-        instruction_file=INSTRUCTION_FILE_PATH,
-        tools=[google_search],
-        output_key="chapter_agent_response",
-        model=GEMINI_MODEL
-    )
+    agent = AgentFactory.from_yaml_file('chapter_agent/configs/chapter_agent.yaml')
+    logger.info(f"Chapter agent '{name}' created from YAML config.")
+
+    return agent
+
 
 async def chapter_agent_parallel(state: AgentState) -> None:
     """Process all chapters in parallel using async."""
@@ -63,7 +61,7 @@ async def chapter_agent_parallel(state: AgentState) -> None:
         logger.info(f"Chapter agent response for '{chapter.get('title')}' received ({len(chapter_response)} characters)")
         
         # Save chapter content
-        chapter_file = f"file_system/chapter_{i}_content.md"
+        chapter_file = f"workspace/chapter_{i}_content.md"
         save_to_file(chapter_response, chapter_file)
         logger.info(f"Chapter {i} response saved to {chapter_file}")
         

@@ -18,22 +18,21 @@ from agent_state import AgentState
 from sdk.ai_agent import AIAgent
 from sdk.utils import save_to_file
 from collation_agent.scripts.create_pdf_file import create_pdf_file
+from sdk.tool_registry import ToolRegistry
+from sdk.agent_factory import AgentFactory
 
 logger = logging.getLogger(__name__)
 
 AGENT_NAME = "collation_agent"
 INSTRUCTION_FILE_PATH = AGENT_NAME + "/SKILL.md"
-OUTPUT_PDF_LOCATION = "file_system/collation_response.pdf"
+OUTPUT_PDF_LOCATION = "workspace/collation_response.pdf"
 
 def create_collation_agent(name: str) -> AIAgent:
-    return AIAgent(
-        name=name,
-        description='An agent to create single PDF file for a book based on chapter content provided for the book.',
-        instruction_file=INSTRUCTION_FILE_PATH,
-        tools=[create_pdf_file],
-        output_key="collation_response",
-        model=GEMINI_MODEL
-    )
+    ToolRegistry.register("create_pdf_file", create_pdf_file)
+    agent = AgentFactory.from_yaml_file('collation_agent/configs/collation_agent.yaml')
+    logger.info(f"Collation agent '{name}' created from YAML config.")
+
+    return agent
 
 agent = create_collation_agent("collation_agent")
 logger.info("Collation agent initialized.")

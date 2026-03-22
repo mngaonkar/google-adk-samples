@@ -42,7 +42,7 @@ Create a professional PDF book from chapter markdown files with an optional Tabl
 ## Output Format
 Return the PDF file path as text, for example:
 ```
-file_system/collation_response_abc123.pdf
+workspace/collation_response_abc123.pdf
 ```
 
 ## Best Practices

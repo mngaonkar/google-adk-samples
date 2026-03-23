@@ -3,10 +3,10 @@
 
 name: toc_agent
 description: An agent to create a table of contents for a book based on user provided topic.
-instruction_file: skills/toc/SKILL.md
+instruction_file: 
 tools:
   - google_search
 skills:
-  - toc_agent
+  - toc
 output_key: toc_agent_response
 model: gemini-2.5-flash

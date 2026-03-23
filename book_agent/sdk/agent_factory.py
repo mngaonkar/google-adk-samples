@@ -35,8 +35,12 @@ class AgentFactory:
             name: toc_agent
             description: An agent to create a table of contents for a book
             instruction_file: toc_agent/SKILL.md
+            skills:
+              - skills/toc
+              - skills/chapter
             tools:
               - google_search
+              - toc_validate_yaml  # Auto-discovered from skills/toc/scripts
             output_key: toc_agent_response
             model: gemini-2.0-flash-exp  # optional, defaults to GEMINI_MODEL
         """
@@ -56,6 +60,8 @@ class AgentFactory:
         
         Args:
             config: Dictionary containing agent configuration
+                   Required: name, instruction_file
+                   Optional: description, skills, tools, output_key, model
             
         Returns:
             AIAgent instance configured according to the dictionary
@@ -67,22 +73,26 @@ class AgentFactory:
         
         instruction_file = config.get('instruction_file')
         if not instruction_file:
-            raise ValueError("Agent 'instruction_file' is required in configuration")
+            logger.warning(f"Agent '{name}' has no instruction_file specified, will use instruction from skills if available")
         
         # Extract optional fields with defaults
         description = config.get('description', '')
         output_key = config.get('output_key', None)
         model = config.get('model', GEMINI_MODEL)
+        skills = config.get('skills', None)
         
-        # Process tools
+        # Process tools - tool names can be resolved from global registry or instance registry
+        # Instance registry automatically discovers from skills directories
         tool_names = config.get('tools', [])
         tools = []
         if tool_names:
             try:
                 tools = ToolRegistry.get_multiple(tool_names)
             except ValueError as e:
-                logger.error(f"Error resolving tools for agent '{name}': {e}")
-                raise
+                # It's okay if tools aren't in global registry - they may be auto-discovered from skills
+                logger.info(f"Some tools for agent '{name}' will be resolved from skills: {e}")
+                # Pass tool names as-is and let AIAgent resolve from its instance registry
+                tools = tool_names
         
         # Create and return the agent
         logger.info(f"Creating agent '{name}' from configuration")
@@ -92,7 +102,8 @@ class AgentFactory:
             instruction_file=instruction_file,
             tools=tools,
             output_key=output_key,
-            model=model
+            model=model,
+            skills=skills
         )
         
         return agent

@@ -3,10 +3,10 @@
 
 name: collation_agent
 description: An agent to create single PDF file for a book based on chapter content provided for the book.
-instruction_file: skills/collation/SKILL.md
+instruction_file: 
 tools:
   - create_pdf_file
 skills:
-  - collation_agent
+  - collation
 output_key: collation_response
 model: gemini-2.5-flash

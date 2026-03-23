@@ -12,7 +12,6 @@ import os
 import asyncio
 import uuid
 import logging
-from settings import GEMINI_MODEL
 from utils.read_file import read_file_content
 from agent_state import AgentState
 from sdk.ai_agent import AIAgent

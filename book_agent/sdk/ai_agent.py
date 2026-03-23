@@ -4,7 +4,7 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.agents.base_agent import BaseAgent
 from google.genai import types
 from sdk.utils import read_from_file
-from sdk.constants import GEMINI_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY
+from sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY
 import asyncio
 import uuid
 import logging
@@ -30,7 +30,7 @@ class AIAgent(Agent):
                  skills: List[str] | None = None,
                  input_key_map: dict[str, str] | None = None,
                  output_key: str | None = None,
-                 model: str = GEMINI_MODEL):
+                 model: str = DEFAULT_MODEL):
 
         instruction_text = read_from_file(instruction_file) if instruction_file else ''
         

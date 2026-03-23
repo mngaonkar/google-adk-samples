@@ -11,7 +11,7 @@ import logging
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 from sdk.ai_agent import AIAgent
-from sdk.constants import GEMINI_MODEL
+from sdk.constants import DEFAULT_MODEL
 from sdk.tool_registry import ToolRegistry
 
 logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ class AgentFactory:
               - google_search
               - toc_validate_yaml  # Auto-discovered from skills/toc/scripts
             output_key: toc_agent_response
-            model: gemini-2.0-flash-exp  # optional, defaults to GEMINI_MODEL
+            model: gemini-2.0-flash-exp  # optional, defaults to DEFAULT_MODEL
         """
         yaml_path = Path(yaml_file_path)
         if not yaml_path.exists():
@@ -78,7 +78,7 @@ class AgentFactory:
         # Extract optional fields with defaults
         description = config.get('description', '')
         output_key = config.get('output_key', None)
-        model = config.get('model', GEMINI_MODEL)
+        model = config.get('model', DEFAULT_MODEL)
         skills = config.get('skills', None)
         
         # Process tools - tool names can be resolved from global registry or instance registry
@@ -99,7 +99,7 @@ class AgentFactory:
         agent = AIAgent(
             name=name,
             description=description,
-            instruction_file=instruction_file,
+            instruction_file=instruction_file if instruction_file is not None else '',
             tools=tools,
             output_key=output_key,
             model=model,

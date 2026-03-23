@@ -9,4 +9,4 @@ tools:
 skills:
   - chapter
 output_key: chapter_agent_response
-model: gemini-2.5-flash
+model: gemini-2.5-flash-lite

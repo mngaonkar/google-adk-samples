@@ -1,5 +1,5 @@
 ---
-name: toc_agent
+name: toc
 description: Create a table of content from the book topic provided by user.
 license: Apache-2.0
 metadata:

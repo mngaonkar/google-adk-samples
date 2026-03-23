@@ -2,54 +2,57 @@
 Skill Registry - Registry pattern for agent skills and sub-agents.
 
 This module provides a centralized registry to manage agent skills (sub-agents)
-and their associated functions, making it easier to organize and reuse agents
-across different workflows.
+and their metadata. The actual callable functions are stored in ToolRegistry.
 """
 
 import logging
-from typing import Callable, Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional
 
 logger = logging.getLogger(__name__)
 
 
 class SkillRegistry:
     """
-    Registry to map skill names to their implementation functions.
+    Registry to map skill names to their directories.
     
     Skills are reusable agent functions or sub-agents that can be composed
     into larger workflows. This registry provides a central location to
-    register and retrieve skills without tight coupling via imports.
+    manage skill directories and metadata. Functions/callables are stored
+    in ToolRegistry which auto-discovers scripts in skill directories.
     
     Example:
         # Register skills
-        SkillRegistry.register('toc_agent', toc_agent_function)
-        SkillRegistry.register('validate_yaml', validate_yaml_function)
+        SkillRegistry.register('toc_agent', directory='skills/toc')
         
-        # Retrieve skills
-        toc_agent = SkillRegistry.get('toc_agent')
+        # Get skill directory
+        directory = SkillRegistry.get_directory('toc_agent')
+        
+        # Get skill function from ToolRegistry
+        from sdk.tool_registry import ToolRegistry
+        toc_agent = ToolRegistry.get('toc_agent')
         
         # List all registered
         skills = SkillRegistry.list_available()
     """
     
-    _skills: Dict[str, Callable] = {}
-    _metadata: Dict[str, Dict[str, Any]] = {}
+    _skills: Dict[str, str] = {}  # Maps skill name to directory path
+    _metadata: Dict[str, Dict[str, Any]] = {}  # Maps skill name to metadata
     
     @classmethod
     def register(
         cls, 
-        name: str, 
-        skill: Callable,
+        name: str,
+        directory: str,
         description: Optional[str] = None,
         category: Optional[str] = None,
         **metadata
     ) -> None:
         """
-        Register a skill with a given name and optional metadata.
+        Register a skill with a given name and directory.
         
         Args:
             name: String identifier for the skill
-            skill: Callable skill function or agent
+            directory: Directory path where the skill is located
             description: Optional description of what the skill does
             category: Optional category (e.g., 'agent', 'validator', 'tool')
             **metadata: Additional metadata to store with the skill
@@ -57,40 +60,41 @@ class SkillRegistry:
         Example:
             SkillRegistry.register(
                 'toc_agent',
-                toc_agent,
+                directory='skills/toc',
                 description='Generate table of contents',
                 category='agent'
             )
         """
-        cls._skills[name] = skill
+        cls._skills[name] = directory
         
         # Store metadata
         skill_metadata = {
             'description': description,
             'category': category,
+            'directory': directory,
             **metadata
         }
         cls._metadata[name] = skill_metadata
         
-        logger.debug(f"Registered skill: {name} (category: {category})")
+        logger.debug(f"Registered skill: {name} (category: {category}, directory: {directory})")
     
     @classmethod
-    def get(cls, name: str) -> Callable:
+    def get_directory(cls, name: str) -> Optional[str]:
         """
-        Get a skill by name.
+        Get the directory path for a skill.
         
         Args:
-            name: The skill name to retrieve
+            name: The skill name
             
         Returns:
-            The callable skill function
+            Directory path or None if not set
             
         Raises:
             ValueError: If skill name is not found in registry
             
         Example:
-            toc_agent = SkillRegistry.get('toc_agent')
-            result = toc_agent(state)
+            directory = SkillRegistry.get_directory('toc_agent')
+            print(f"Skill located at: {directory}")
         """
         if name not in cls._skills:
             available = list(cls._skills.keys())
@@ -98,7 +102,7 @@ class SkillRegistry:
                 f"Skill '{name}' not found in registry. "
                 f"Available skills: {available}"
             )
-        return cls._skills[name]
+        return cls._skills.get(name)
     
     @classmethod
     def get_metadata(cls, name: str) -> Dict[str, Any]:
@@ -109,11 +113,12 @@ class SkillRegistry:
             name: The skill name
             
         Returns:
-            Dictionary of metadata
+            Dictionary of metadata including description, category, and directory
             
         Example:
             metadata = SkillRegistry.get_metadata('toc_agent')
             print(metadata['description'])
+            print(metadata['directory'])
         """
         return cls._metadata.get(name, {})
     
@@ -189,32 +194,34 @@ class SkillRegistry:
             
         Example:
             if SkillRegistry.is_registered('toc_agent'):
-                agent = SkillRegistry.get('toc_agent')
+                directory = SkillRegistry.get_directory('toc_agent')
         """
         return name in cls._skills
     
     @classmethod
     def register_multiple(
         cls, 
-        skills: Dict[str, Callable],
-        category: Optional[str] = None
+        skills: Dict[str, str],
+        category: Optional[str] = None,
+        description: Optional[str] = None
     ) -> None:
         """
         Register multiple skills at once.
         
         Args:
-            skills: Dictionary mapping skill names to callable functions
+            skills: Dictionary mapping skill names to directory paths
             category: Optional category to apply to all skills
+            description: Optional description to apply to all skills
             
         Example:
             SkillRegistry.register_multiple({
-                'toc_agent': toc_agent,
-                'chapter_agent': chapter_agent,
-                'collation_agent': collation_agent
+                'toc_agent': 'skills/toc',
+                'chapter_agent': 'skills/chapter',
+                'collation_agent': 'skills/collation'
             }, category='agent')
         """
-        for name, skill in skills.items():
-            cls.register(name, skill, category=category)
+        for name, directory in skills.items():
+            cls.register(name, directory=directory, category=category, description=description)
         logger.info(f"Registered {len(skills)} skills (category: {category})")
     
     @classmethod
@@ -230,9 +237,9 @@ class SkillRegistry:
         """
         if name in cls._skills:
             del cls._skills[name]
-            if name in cls._metadata:
-                del cls._metadata[name]
-            logger.debug(f"Unregistered skill: {name}")
+        if name in cls._metadata:
+            del cls._metadata[name]
+        logger.debug(f"Unregistered skill: {name}")
     
     @classmethod
     def info(cls) -> Dict[str, Any]:

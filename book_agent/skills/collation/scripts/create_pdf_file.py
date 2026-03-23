@@ -50,17 +50,3 @@ def create_pdf_file(chapter_locations: list[str], toc_location: Optional[str] = 
     logger.info(f"PDF file created successfully at {pdf_file}")
 
     return pdf_file
-
-def main():
-    chapter_locations = [
-        "workspace/chapter_1_content.md",
-        "workspace/chapter_2_content.md",
-        "workspace/chapter_3_content.md"
-    ]
-    toc_location = "workspace/table_of_contents.md"  # Optional TOC file
-    
-    pdf_file = create_pdf_file(chapter_locations, toc_location)
-    print(f"PDF created: {pdf_file}")
-
-if __name__ == "__main__":
-    main()

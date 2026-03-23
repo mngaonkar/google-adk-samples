@@ -6,10 +6,13 @@ from dotenv import load_dotenv
 import logging
 import asyncio
 import os
-from sdk.skill_registry import SkillRegistry
 from sdk.workflow_registry import WorkflowRegistry
 from sdk.workflow_factory import WorkflowFactory
+from sdk.tool_registry import ToolRegistry
 from register_skills import register_all_skills
+from toc_agent.agent import toc_agent
+from chapter_agent.agent import chapter_agent_parallel
+from collation_agent.agent import collation_agent
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -21,16 +24,15 @@ load_dotenv()
 register_all_skills()
 
 def route_after_toc(state: AgentState) -> Literal["chapter_agent_parallel", "toc_agent"]:
-    """If TOC YAML is valid, proceed to chapters; otherwise retry toc_agent."""
-    # Get validate_yaml from skill registry
-    validate_yaml = SkillRegistry.get('validate_yaml')
-    
+    """If TOC YAML is valid, proceed to chapters; otherwise retry toc_agent."""    
     toc_location = state.get("toc_location") or ""
     if not toc_location or not os.path.exists(toc_location):
         logger.warning("TOC location missing or file not found, re-running toc_agent")
         return "toc_agent"
     try:
         content = read_file_content(toc_location)
+        # Get validate_yaml from ToolRegistry
+        validate_yaml = ToolRegistry.get('validate_yaml')
         if validate_yaml(content):
             return "chapter_agent_parallel"
     except Exception as e:
@@ -38,10 +40,10 @@ def route_after_toc(state: AgentState) -> Literal["chapter_agent_parallel", "toc
     return "toc_agent"
 
 
-# Register skills and router in WorkflowRegistry for the workflow
-WorkflowRegistry.register("toc_agent", SkillRegistry.get('toc_agent'))
-WorkflowRegistry.register("chapter_agent_parallel", SkillRegistry.get('chapter_agent_parallel'))
-WorkflowRegistry.register("collation_agent", SkillRegistry.get('collation_agent'))
+# Register workflow functions from ToolRegistry
+WorkflowRegistry.register("toc_agent", toc_agent)
+WorkflowRegistry.register("chapter_agent_parallel", chapter_agent_parallel)
+WorkflowRegistry.register("collation_agent", collation_agent)
 WorkflowRegistry.register("route_after_toc", route_after_toc)
 
 graph = WorkflowFactory.compile_from_yaml(

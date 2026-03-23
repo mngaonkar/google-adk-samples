@@ -1,5 +1,5 @@
 ---
-name: chapter_agent
+name: chapter
 description: Create a comprehensive chapter content based on the subtopics provided by user.
 license: Apache-2.0
 metadata:

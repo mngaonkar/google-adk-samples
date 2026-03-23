@@ -1,5 +1,5 @@
 ---
-name: collation_agent
+name: collation
 description: Create a final book content by collating all chapter contents into a PDF.
 license: Apache-2.0
 metadata:

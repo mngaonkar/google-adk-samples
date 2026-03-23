@@ -33,7 +33,7 @@ def register_all_skills() -> None:
     from collation_agent.agent import collation_agent
     
     # Import utility skills
-    from toc_agent.scripts.validate_yaml import validate_yaml
+    from skills.toc.scripts.validate_yaml import validate_yaml
     
     # Register agent skills
     SkillRegistry.register(

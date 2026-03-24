@@ -53,6 +53,11 @@ class AgentFactory:
             provider: vllm
             endpoint:
               url: http://10.0.0.147:8000/v1
+              max_tokens: 2048
+              temperature: 0.8
+            # Or specify at root level:
+            # max_tokens: 2048
+            # temperature: 0.8
         """
         yaml_path = Path(yaml_file_path)
         if not yaml_path.exists():
@@ -72,7 +77,7 @@ class AgentFactory:
             config: Dictionary containing agent configuration
                    Required: name, instruction_file
                    Optional: description, skills, tools, output_key, model, 
-                            provider, endpoint
+                            provider, endpoint, max_tokens, temperature
             
         Returns:
             AIAgent instance configured according to the dictionary
@@ -96,14 +101,33 @@ class AgentFactory:
         
         # Extract endpoint URL if endpoint configuration exists
         endpoint_url = None
+        max_tokens = None
+        temperature = None
+        
         if endpoint_config and isinstance(endpoint_config, dict):
             endpoint_url = endpoint_config.get('url')
+            max_tokens = endpoint_config.get('max_tokens')
+            temperature = endpoint_config.get('temperature')
+        
+        # Also check for max_tokens and temperature at root level (if not in endpoint)
+        if max_tokens is None:
+            max_tokens = config.get('max_tokens')
+        if temperature is None:
+            temperature = config.get('temperature')
         
         # Create model object using ModelFactory
+        # Build kwargs dynamically to avoid passing None values
+        model_kwargs = {}
+        if max_tokens is not None:
+            model_kwargs['max_tokens'] = max_tokens
+        if temperature is not None:
+            model_kwargs['temperature'] = temperature
+        
         model = ModelFactory.create_model(
             model_name=model_name,
             provider=provider,
-            endpoint_url=endpoint_url
+            endpoint_url=endpoint_url,
+            **model_kwargs
         )
         logger.debug(f"Created model for agent '{name}': {model}")
         

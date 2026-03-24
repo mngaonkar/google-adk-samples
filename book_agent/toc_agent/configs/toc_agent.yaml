@@ -5,8 +5,13 @@ name: toc_agent
 description: An agent to create a table of contents for a book based on user provided topic.
 instruction_file: 
 tools:
-  - google_search
+  - tavily_search
 skills:
   - toc
 output_key: toc_agent_response
-model: gemini-2.5-flash-lite
+provider: vllm
+model: Qwen/Qwen3-4B-Thinking-2507-FP8
+endpoint:
+  url: http://10.0.0.147:8000/v1
+  max_tokens: 4096
+  temperature: 0.8

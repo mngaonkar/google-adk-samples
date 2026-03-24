@@ -190,7 +190,7 @@ class AIAgent(Agent):
             session_id=session_id,
             new_message=content
         ):
-            logger.debug(f"EVENT: {event}")
+            logger.info(f"EVENT: {event}")
             
             if event.is_final_response():
                 if event.content and event.content.parts:

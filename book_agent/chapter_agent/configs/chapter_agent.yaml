@@ -5,8 +5,13 @@ name: chapter_agent
 description: An agent to create chapter content for a book based on subtopics provided for the chapter.
 instruction_file: 
 tools:
-  - google_search
+  - tavily_search
 skills:
   - chapter
 output_key: chapter_agent_response
-model: gemini-2.5-flash-lite
+provider: vllm
+model: Qwen/Qwen3-4B-Thinking-2507-FP8
+endpoint:
+  url: http://10.0.0.147:8000/v1
+  max_tokens: 4096
+  temperature: 0.8

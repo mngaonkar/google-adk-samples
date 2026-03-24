@@ -12,32 +12,15 @@ metadata:
 Create a comprehensive table of contents for a book based on a specific topic description provided by user in YAML format. Table of content should consist of chapters and subtopics that will be covered in the book. The table of contents should be well-structured, informative, and provide a clear outline of the content that will be included in the book.
 
 ## Tools available
-1. **google_search** - Search the web for information about the book topic
+1. **tavily_search** - Search the web for information about the book topic
 2. **validate_yaml** - scripts/validate_yaml.py - Validate if the generated YAML content is syntactically correct and can be parsed without errors
 
 ## Instructions
-1. Research the topic using google_search if needed to understand the scope
+1. Research the topic using tavily_search if needed to understand the scope
 2. Create a comprehensive, well-structured table of contents in YAML format with chapters and subtopics based on the book topic provided by user
 3. Verify the generated YAML content using validate_yaml tool to ensure it is syntactically correct and can be parsed without errors
 
 ## Output format
-**Exact Output Schema You Must Follow:**
-
-```yaml
-title: "Book Title Here"
-author: "John Doe"
-chapters:
-  - title: "Chapter 1 Title"
-    subtopics:
-      - "Subtopic 1"
-      - "Subtopic 2"
-      - "Subtopic 3"
-  - title: "Chapter 2 Title"
-    subtopics:
-      - "Subtopic 1"
-      - "Subtopic 2"
-```
-
 Here is sample YAML output for book topic "Artificial Intelligence: A Comprehensive Guide":
 
 ```yaml

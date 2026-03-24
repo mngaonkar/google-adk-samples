@@ -18,6 +18,7 @@ from agent_state import BookAgentState
 from sdk.utils import save_to_file
 from sdk.agent_factory import AgentFactory
 from sdk.constants import WORKSPACE_DIRECTORY
+from utils.remove_think_content import remove_think_content
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -30,7 +31,10 @@ def toc_agent(state: BookAgentState) -> BookAgentState:
     result = agent.run_sync(state["topic_description"])
     logger.debug(f"TOC agent generated response: {result}")
     agent_output_file = os.path.join(WORKSPACE_DIRECTORY, agent.name)
-    save_to_file(result["final_response"], agent_output_file)
+
+    reponse = result.get("final_response", "")
+    response = remove_think_content(reponse)
+    save_to_file(response, agent_output_file)
     logger.info(f"TOC agent response saved to {agent_output_file}")
     state["toc_location"] = agent_output_file
     state["agent_output"][agent.name] = agent_output_file

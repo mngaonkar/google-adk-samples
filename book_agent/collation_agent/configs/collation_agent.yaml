@@ -9,4 +9,9 @@ tools:
 skills:
   - collation
 output_key: collation_response
-model: gemini-2.5-flash-lite
+provider: vllm
+model: Qwen/Qwen3-4B-Thinking-2507-FP8
+endpoint:
+  url: http://10.0.0.147:8000/v1
+  max_tokens: 4096
+  temperature: 0.8

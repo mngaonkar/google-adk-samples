@@ -1,0 +1,15 @@
+# Table of Contents Agent Configuration
+# This file defines the configuration for the TOC agent
+
+name: toc_agent
+description: An agent to create a table of contents for a book based on user provided topic.
+instruction_file: 
+tools:
+  - google_search
+skills:
+  - toc
+output_key: toc_agent_response
+provider: vllm
+model: Qwen/Qwen3-4B-Thinking-2507-FP8
+endpoint:
+  url: http://http://10.0.0.147:8000/v1

@@ -12,6 +12,7 @@ from pathlib import Path
 from sdk.ai_agent import AIAgent
 from sdk.constants import DEFAULT_MODEL
 from sdk.tool_registry import ToolRegistry
+from sdk.model_factory import ModelFactory
 from sdk.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -31,7 +32,7 @@ class AgentFactory:
         Returns:
             AIAgent instance configured according to the YAML file
             
-        Example YAML format:
+        Example YAML format (Google Gemini):
             name: toc_agent
             description: An agent to create a table of contents for a book
             instruction_file: toc_agent/SKILL.md
@@ -43,6 +44,15 @@ class AgentFactory:
               - toc_validate_yaml  # Auto-discovered from skills/toc/scripts
             output_key: toc_agent_response
             model: gemini-2.0-flash-exp  # optional, defaults to DEFAULT_MODEL
+            
+        Example YAML format (vLLM):
+            name: vllm_agent
+            description: Agent using local vLLM server
+            instruction_file: agent/instructions.md
+            model: Qwen/Qwen3-4B-Thinking-2507-FP8
+            provider: vllm
+            endpoint:
+              url: http://10.0.0.147:8000/v1
         """
         yaml_path = Path(yaml_file_path)
         if not yaml_path.exists():
@@ -61,7 +71,8 @@ class AgentFactory:
         Args:
             config: Dictionary containing agent configuration
                    Required: name, instruction_file
-                   Optional: description, skills, tools, output_key, model
+                   Optional: description, skills, tools, output_key, model, 
+                            provider, endpoint
             
         Returns:
             AIAgent instance configured according to the dictionary
@@ -78,8 +89,23 @@ class AgentFactory:
         # Extract optional fields with defaults
         description = config.get('description', '')
         output_key = config.get('output_key', None)
-        model = config.get('model', DEFAULT_MODEL)
+        model_name = config.get('model', DEFAULT_MODEL)
         skills = config.get('skills', None)
+        provider = config.get('provider', None)
+        endpoint_config = config.get('endpoint', None)
+        
+        # Extract endpoint URL if endpoint configuration exists
+        endpoint_url = None
+        if endpoint_config and isinstance(endpoint_config, dict):
+            endpoint_url = endpoint_config.get('url')
+        
+        # Create model object using ModelFactory
+        model = ModelFactory.create_model(
+            model_name=model_name,
+            provider=provider,
+            endpoint_url=endpoint_url
+        )
+        logger.debug(f"Created model for agent '{name}': {model}")
         
         # Process tools - tool names can be resolved from global registry or instance registry
         # Instance registry automatically discovers from skills directories

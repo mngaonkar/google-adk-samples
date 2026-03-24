@@ -1,0 +1,12 @@
+# Collation Agent Configuration
+# This file defines the configuration for the PDF collation agent
+
+name: collation_agent
+description: An agent to create single PDF file for a book based on chapter content provided for the book.
+instruction_file: 
+tools:
+  - create_pdf_file
+skills:
+  - collation
+output_key: collation_response
+model: gemini-2.5-flash-lite

@@ -29,11 +29,39 @@ class AIAgent(Agent):
                  skills: List[str] | None = None,
                  input_key_map: dict[str, str] | None = None,
                  output_key: str | None = None,
-                 model: str = DEFAULT_MODEL):
-
+                 model: Union[str, Any] = DEFAULT_MODEL):
+        """
+        Initialize the AI Agent with tools, skills, and instructions.
+        
+        Args:
+            name: Agent name (used for identification and logging)
+            instruction_file: Path to the main instruction file (markdown format)
+            description: Brief description of the agent's purpose
+            tools: List of tool names (strings) or tool objects to provide to the agent
+            skills: List of skill directory names to auto-discover tools from.
+                   Each skill directory should contain:
+                   - SKILL.md: Instructions to append to agent's instruction text
+                   - scripts/: Folder with Python scripts to register as tools
+            input_key_map: Optional mapping of input keys for data transformation
+            output_key: Optional key where agent stores structured output in session state
+            model: Model name (string) or model object (defaults to DEFAULT_MODEL from constants)
+        
+        Workflow:
+            1. Reads instruction text from instruction_file
+            2. Creates instance-specific tool registry
+            3. For each skill directory:
+               - Appends SKILL.md content to instructions
+               - Auto-discovers and registers tools from scripts/ folder
+            4. Resolves tool names to tool objects
+            5. Configures automatic function calling with MAX_REMOTE_CALLS limit
+            6. Initializes parent Agent class with all configuration
+        """
+        # Read main instruction file
+        # Read main instruction file
         instruction_text = read_from_file(instruction_file) if instruction_file else ''
         
-        # Create instance-level tool registry
+        # Create instance-level tool registry (isolated from global registry)
+        # This ensures each agent has its own set of tools without conflicts
         from sdk.tool_registry import ToolRegistry
         instance_registry = type('InstanceToolRegistry', (ToolRegistry,), {
             '_tools': {},  # Instance-specific tools dict
@@ -47,12 +75,14 @@ class AIAgent(Agent):
                     raise FileNotFoundError(f"Skill directory not found: {skill_dir}")
                 
                 # Append SKILL.md content to instruction text
+                # This provides domain-specific knowledge to the agent
                 skill_md_path = os.path.join(skill_dir, 'SKILL.md')
                 if os.path.exists(skill_md_path):
                     skill_instruction = read_from_file(skill_md_path)
                     instruction_text += f"\n\n# Skill: {os.path.basename(skill_dir)}\n{skill_instruction}"
                     logger.info(f"Appended SKILL.md from {skill_dir}")
 
+                # Auto-discover and register tools from scripts/ folder
                 scripts_dir = os.path.join(skill_dir, 'scripts')
                 if os.path.exists(scripts_dir):
                     count = instance_registry.register_from_scripts_folder(
@@ -62,6 +92,7 @@ class AIAgent(Agent):
                     logger.info(f"Auto-discovered {count} tools from {scripts_dir}")
         
         # Resolve tool names from YAML to actual tool objects
+        # Tools can be specified as strings (tool names) or tool objects
         resolved_tools = []
         if tools:
             for tool_item in tools:
@@ -77,15 +108,19 @@ class AIAgent(Agent):
         
         tools = resolved_tools
         
-        # Define your AFC config (change max_remote_calls here)
+        # Define automatic function calling config
+        # Controls how many rounds of tool calls the agent can make
         afc_config = types.AutomaticFunctionCallingConfig(
             maximum_remote_calls=MAX_REMOTE_CALLS,  # e.g., limit to 5 rounds of tool calls (default is 10)
             # disable=True,          # Optional: fully disable auto-loop if needed
         )
 
+        # Validate that we have instruction text
+        # Either from instruction_file or from SKILL.md files
         if not instruction_text:
             raise ValueError("Agent does not have any instruction text. Please provide an instruction_file or ensure SKILL.md files are included in skills directories.")
         
+        # Initialize parent Agent class with all configuration
         super().__init__(
             model=model,
             name=name,
@@ -100,6 +135,7 @@ class AIAgent(Agent):
         )
         
         # Set custom fields AFTER parent initialization
+        # These are excluded from Pydantic model but stored on the instance
         object.__setattr__(self, 'instruction_file', instruction_file)
         object.__setattr__(self, 'input_key_map', input_key_map or {})
         object.__setattr__(self, 'tool_registry', instance_registry)

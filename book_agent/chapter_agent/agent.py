@@ -17,6 +17,7 @@ from agent_state import BookAgentState
 from sdk.ai_agent import AIAgent
 from sdk.utils import save_to_file
 from sdk.agent_factory import AgentFactory
+from utils.remove_think_content import remove_think_content
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ async def chapter_agent_parallel(state: BookAgentState) -> None:
     """Process all chapters in parallel using async."""
     toc_file = state["agent_output"].get("toc_agent", "")
     assert toc_file, "TOC file location missing in state['agent_output']['toc_agent']"
-    
+
     toc_content = read_file_content(toc_file)
     logger.info(f"Read TOC content from {toc_file} ({len(toc_content)} characters)")
 
@@ -59,6 +60,7 @@ async def chapter_agent_parallel(state: BookAgentState) -> None:
 
         result = await chapter_agent.run(user_prompt)
         chapter_response = result.get("final_response", "")
+        chapter_response = remove_think_content(chapter_response)
         logger.info(f"Chapter agent response for '{chapter.get('title')}' received ({len(chapter_response)} characters)")
         
         # Save chapter content

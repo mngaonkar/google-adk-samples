@@ -14,27 +14,25 @@ import uuid
 import logging
 from utils.read_file import read_file_content
 from sdk.ai_agent import AIAgent
-from agent_state import AgentState
+from agent_state import BookAgentState
 from sdk.utils import save_to_file
 from sdk.agent_factory import AgentFactory
+from sdk.constants import WORKSPACE_DIRECTORY
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-AGENT_NAME = "toc_agent"
-INSTRUCTION_FILE_PATH = AGENT_NAME + "/SKILL.md"
-TOC_OUTPUT_FILE = "workspace/toc_response.yaml"
-OUTPUT_KEY = "toc_agent_response"
 
 agent = AgentFactory.from_yaml_file('toc_agent/configs/toc_agent.yaml')
 
 logger.info("Table of Contents agent initialized.")
 
-def toc_agent(state: AgentState) -> AgentState:
+def toc_agent(state: BookAgentState) -> BookAgentState:
     result = agent.run_sync(state["topic_description"])
     logger.debug(f"TOC agent generated response: {result}")
-    save_to_file(result["final_response"], TOC_OUTPUT_FILE)
-    logger.info(f"TOC agent response saved to {TOC_OUTPUT_FILE}")
-    state["toc_location"] = TOC_OUTPUT_FILE
+    agent_output_file = os.path.join(WORKSPACE_DIRECTORY, agent.name)
+    save_to_file(result["final_response"], agent_output_file)
+    logger.info(f"TOC agent response saved to {agent_output_file}")
+    state["toc_location"] = agent_output_file
+    state["agent_output"][agent.name] = agent_output_file
 
     return state

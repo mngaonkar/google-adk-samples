@@ -1,6 +1,5 @@
-from langgraph.graph import StateGraph, START, END
-from typing import TypedDict, List, Literal
-from agent_state import AgentState
+from typing import Literal
+from agent_state import BookAgentState
 from utils.read_file import read_file_content
 from dotenv import load_dotenv
 import logging
@@ -23,7 +22,7 @@ load_dotenv()
 # Register all skills at startup
 register_all_skills()
 
-def route_after_toc(state: AgentState) -> Literal["chapter_agent_parallel", "toc_agent"]:
+def route_after_toc(state: BookAgentState) -> Literal["chapter_agent_parallel", "toc_agent"]:
     """If TOC YAML is valid, proceed to chapters; otherwise retry toc_agent."""    
     toc_location = state.get("toc_location") or ""
     if not toc_location or not os.path.exists(toc_location):
@@ -51,7 +50,7 @@ WorkflowRegistry.register("route_after_toc", route_after_toc)
 
 graph = WorkflowFactory.compile_from_yaml(
         'configs/agents/book_workflow.yaml',
-        AgentState
+        BookAgentState
     )
 
 
@@ -69,7 +68,8 @@ async def main():
         if input_topic.lower() == "exit":
             break
 
-        initial_state: AgentState = {
+        initial_state: BookAgentState = {
+            "agent_output": {},
             "topic_description": input_topic,
             "toc_location": "",
             "chapter_locations": [],

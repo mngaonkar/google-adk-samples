@@ -13,7 +13,7 @@ import asyncio
 import uuid
 import logging
 from utils.read_file import read_file_content
-from agent_state import AgentState
+from agent_state import BookAgentState
 from sdk.ai_agent import AIAgent
 from sdk.utils import save_to_file
 from skills.collation.scripts.create_pdf_file import create_pdf_file
@@ -36,7 +36,7 @@ def create_collation_agent(name: str) -> AIAgent:
 agent = create_collation_agent("collation_agent")
 logger.info("Collation agent initialized.")
 
-def collation_agent(state: AgentState) -> AgentState:
+def collation_agent(state: BookAgentState) -> BookAgentState:
     """Collate chapter content into a single PDF file."""
     chapter_locations = state["chapter_locations"]
     toc_location = state.get("toc_location", "")

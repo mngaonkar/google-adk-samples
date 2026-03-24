@@ -1,6 +1,7 @@
 from typing import TypedDict, List
+from sdk.agent_state import AgentState
 
-class AgentState(TypedDict):
+class BookAgentState(AgentState):
     topic_description: str
     toc_location: str
     chapter_locations: List[str]

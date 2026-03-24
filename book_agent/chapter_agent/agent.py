@@ -13,7 +13,7 @@ import asyncio
 import uuid
 import logging
 from utils.read_file import read_file_content
-from agent_state import AgentState
+from agent_state import BookAgentState
 from sdk.ai_agent import AIAgent
 from sdk.utils import save_to_file
 from sdk.agent_factory import AgentFactory
@@ -30,9 +30,11 @@ def create_chapter_agent(name: str) -> AIAgent:
     return agent
 
 
-async def chapter_agent_parallel(state: AgentState) -> None:
+async def chapter_agent_parallel(state: BookAgentState) -> None:
     """Process all chapters in parallel using async."""
-    toc_file = state["toc_location"]
+    toc_file = state["agent_output"].get("toc_agent", "")
+    assert toc_file, "TOC file location missing in state['agent_output']['toc_agent']"
+    
     toc_content = read_file_content(toc_file)
     logger.info(f"Read TOC content from {toc_file} ({len(toc_content)} characters)")
 

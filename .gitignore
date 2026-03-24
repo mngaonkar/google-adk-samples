@@ -6,5 +6,5 @@ __pycache__
 logs/
 *.log
 output/
-file_system/
+workspace/
 .vscode/

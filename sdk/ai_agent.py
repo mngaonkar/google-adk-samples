@@ -6,6 +6,7 @@ from google.genai import types
 from sdk.utils import read_from_file
 from sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY
 from sdk.logging_config import get_logger
+from sdk.token_utils import fit_to_context_window
 import asyncio
 import uuid
 import os
@@ -20,6 +21,11 @@ class AIAgent(Agent):
     instruction_file: str = Field(default="", exclude=True)
     input_key_map: dict[str, str] = Field(default_factory=dict, exclude=True)
     tool_registry: Any = Field(default=None, exclude=True)
+    context_window: Optional[int] = Field(default=None, exclude=True)
+    max_output_tokens: Optional[int] = Field(default=None, exclude=True)
+    enable_truncation: bool = Field(default=False, exclude=True)
+    truncate_strategy: str = Field(default="end", exclude=True)
+    safety_margin: int = Field(default=100, exclude=True)
    
     def __init__(self, 
                  name: str, 
@@ -29,7 +35,12 @@ class AIAgent(Agent):
                  skills: List[str] | None = None,
                  input_key_map: dict[str, str] | None = None,
                  output_key: str | None = None,
-                 model: Union[str, Any] = DEFAULT_MODEL):
+                 model: Union[str, Any] = DEFAULT_MODEL,
+                 context_window: Optional[int] = None,
+                 max_output_tokens: Optional[int] = None,
+                 enable_truncation: bool = False,
+                 truncate_strategy: str = "end",
+                 safety_margin: int = 100):
         """
         Initialize the AI Agent with tools, skills, and instructions.
         
@@ -45,6 +56,11 @@ class AIAgent(Agent):
             input_key_map: Optional mapping of input keys for data transformation
             output_key: Optional key where agent stores structured output in session state
             model: Model name (string) or model object (defaults to DEFAULT_MODEL from constants)
+            context_window: Total context window size in tokens (e.g., 20384 for Qwen3-4B)
+            max_output_tokens: Tokens reserved for output generation
+            enable_truncation: If True, automatically truncate inputs exceeding context window
+            truncate_strategy: How to truncate ("start", "end", or "middle")
+            safety_margin: Extra tokens to reserve for safety (default: 100)
         
         Workflow:
             1. Reads instruction text from instruction_file
@@ -139,6 +155,11 @@ class AIAgent(Agent):
         object.__setattr__(self, 'instruction_file', instruction_file)
         object.__setattr__(self, 'input_key_map', input_key_map or {})
         object.__setattr__(self, 'tool_registry', instance_registry)
+        object.__setattr__(self, 'context_window', context_window)
+        object.__setattr__(self, 'max_output_tokens', max_output_tokens)
+        object.__setattr__(self, 'enable_truncation', enable_truncation)
+        object.__setattr__(self, 'truncate_strategy', truncate_strategy)
+        object.__setattr__(self, 'safety_margin', safety_margin)
 
     async def run(self, 
                   input_text: str, 
@@ -176,10 +197,23 @@ class AIAgent(Agent):
             session_service=session_service
         )
         
+        # Apply token truncation if configured
+        processed_input = input_text
+        if self.enable_truncation and self.context_window and self.max_output_tokens:
+            logger.info(f"Token truncation enabled for agent '{self.name}'")
+            processed_input = fit_to_context_window(
+                input_text=input_text,
+                max_context_tokens=self.context_window,
+                max_output_tokens=self.max_output_tokens,
+                model="gpt-4",  # For tokenization
+                safety_margin=self.safety_margin,
+                truncate_strategy=self.truncate_strategy
+            )
+        
         # Create content message
         content = types.Content(
             role="user",
-            parts=[types.Part(text=input_text)]
+            parts=[types.Part(text=processed_input)]
         )
         
         final_response = ""

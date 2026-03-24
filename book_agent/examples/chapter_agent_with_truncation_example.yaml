@@ -1,0 +1,40 @@
+# Example: Chapter Agent with Automatic Token Truncation
+# This configuration shows how to enable automatic input truncation
+# to prevent ContextWindowExceededError
+
+name: chapter_agent_with_truncation
+description: Chapter generation agent with automatic token management
+instruction_file: chapter_agent/SKILL.md
+
+# Model configuration
+model: Qwen/Qwen3-4B-Thinking-2507-FP8
+provider: vllm
+
+# Endpoint configuration
+endpoint:
+  url: http://10.0.0.147:8000/v1
+  max_tokens: 3000
+  temperature: 0.8
+
+# Token Management Configuration
+# Enable this to automatically truncate inputs that exceed context window
+enable_truncation: true
+
+# Context window size (total tokens available)
+# Qwen3-4B has 20384 tokens
+context_window: 20384
+
+# Strategy for truncation
+# - "end": Keep beginning, truncate end (recommended for prompts)
+# - "start": Keep end, truncate beginning
+# - "middle": Keep both ends, truncate middle
+truncate_strategy: end
+
+# Safety margin (extra tokens reserved for overhead)
+safety_margin: 100
+
+# Skills and tools
+skills:
+  - skills/chapter
+
+output_key: chapter_response

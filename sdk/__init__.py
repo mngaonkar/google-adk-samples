@@ -13,6 +13,7 @@ from sdk.skill_registry import SkillRegistry
 from sdk.workflow_registry import WorkflowRegistry
 from sdk.workflow_factory import WorkflowFactory, register_workflow_functions
 from sdk.logging_config import setup_logging, get_logger, set_log_level
+from sdk.token_utils import fit_to_context_window
 from sdk import utils
 from sdk import constants
 
@@ -29,6 +30,7 @@ __all__ = [
     'setup_logging',
     'get_logger',
     'set_log_level',
+    'fit_to_context_window',
     'utils',
     'constants',
 ]

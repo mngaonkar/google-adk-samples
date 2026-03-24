@@ -53,11 +53,27 @@ class AgentFactory:
             provider: vllm
             endpoint:
               url: http://10.0.0.147:8000/v1
-              max_tokens: 2048
+              max_tokens: 3000
               temperature: 0.8
             # Or specify at root level:
-            # max_tokens: 2048
+            # max_tokens: 3000
             # temperature: 0.8
+            
+        Example YAML format (with Token Management):
+            name: vllm_agent_with_truncation
+            description: Agent with automatic input truncation
+            instruction_file: agent/instructions.md
+            model: Qwen/Qwen3-4B-Thinking-2507-FP8
+            provider: vllm
+            endpoint:
+              url: http://10.0.0.147:8000/v1
+              max_tokens: 3000
+              temperature: 0.8
+            # Token management configuration (optional)
+            enable_truncation: true         # Enable automatic input truncation
+            context_window: 20384           # Total context window size
+            truncate_strategy: end          # "end", "start", or "middle"
+            safety_margin: 100              # Extra tokens for overhead
         """
         yaml_path = Path(yaml_file_path)
         if not yaml_path.exists():
@@ -77,7 +93,9 @@ class AgentFactory:
             config: Dictionary containing agent configuration
                    Required: name, instruction_file
                    Optional: description, skills, tools, output_key, model, 
-                            provider, endpoint, max_tokens, temperature
+                            provider, endpoint, max_tokens, temperature,
+                            context_window, enable_truncation, truncate_strategy,
+                            safety_margin
             
         Returns:
             AIAgent instance configured according to the dictionary
@@ -114,6 +132,12 @@ class AgentFactory:
             max_tokens = config.get('max_tokens')
         if temperature is None:
             temperature = config.get('temperature')
+        
+        # Extract context window configuration for token management
+        context_window = config.get('context_window')
+        enable_truncation = config.get('enable_truncation', False)
+        truncate_strategy = config.get('truncate_strategy', 'end')
+        safety_margin = config.get('safety_margin', 100)
         
         # Create model object using ModelFactory
         # Build kwargs dynamically to avoid passing None values
@@ -153,7 +177,12 @@ class AgentFactory:
             tools=tools,
             output_key=output_key,
             model=model,
-            skills=skills
+            skills=skills,
+            context_window=context_window,
+            max_output_tokens=max_tokens,
+            enable_truncation=enable_truncation,
+            truncate_strategy=truncate_strategy,
+            safety_margin=safety_margin
         )
         
         return agent

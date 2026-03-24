@@ -15,3 +15,5 @@ endpoint:
   url: http://10.0.0.147:8000/v1
   max_tokens: 4096
   temperature: 0.8
+enable_truncation: true
+max_context_tokens: 20384

@@ -34,7 +34,10 @@ def route_after_toc(state: AgentState) -> Literal["chapter_agent_parallel", "toc
         # Get validate_yaml from ToolRegistry
         validate_yaml = ToolRegistry.get('validate_yaml')
         if validate_yaml(content):
+            logger.info("TOC YAML validated successfully, proceeding to chapter_agent_parallel")
             return "chapter_agent_parallel"
+        else:
+            logger.warning("TOC YAML validation failed, re-running toc_agent")
     except Exception as e:
         logger.warning("Failed to read or validate TOC YAML: %s, re-running toc_agent", e)
     return "toc_agent"

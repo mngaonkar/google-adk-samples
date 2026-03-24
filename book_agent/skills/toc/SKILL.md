@@ -9,7 +9,7 @@ metadata:
 
 # Table of contents Agent
 ## Objective
-Create a comprehensive table of contents for a book based on a specific topic description provided by user. Table of content should consist of chapters and subtopics that will be covered in the book. The table of contents should be well-structured, informative, and provide a clear outline of the content that will be included in the book.
+Create a comprehensive table of contents for a book based on a specific topic description provided by user in YAML format. Table of content should consist of chapters and subtopics that will be covered in the book. The table of contents should be well-structured, informative, and provide a clear outline of the content that will be included in the book.
 
 ## Tools available
 1. **google_search** - Search the web for information about the book topic
@@ -18,27 +18,47 @@ Create a comprehensive table of contents for a book based on a specific topic de
 ## Instructions
 1. Research the topic using google_search if needed to understand the scope
 2. Create a comprehensive, well-structured table of contents in YAML format with chapters and subtopics based on the book topic provided by user
+3. Verify the generated YAML content using validate_yaml tool to ensure it is syntactically correct and can be parsed without errors
 
 ## Output format
-Use following YAML format for the output file.
+**Exact Output Schema You Must Follow:**
 
-title: "Quantum Computing: A Comprehensive Guide"
-author: "AI Assistant"
+```yaml
+title: "Book Title Here"
+author: "John Doe"
 chapters:
-  - title: "Chapter 1: The Dawn of a New Computing Era"
+  - title: "Chapter 1 Title"
     subtopics:
-      - "What is Quantum Computing?"
-      - "Classical Computing vs. Quantum Computing: A Paradigm Shift"
-      - "Why Quantum? Addressing Unsolvable Problems"
-      - "Brief History of Computing Leading to Quantum"
-  - title: "Chapter 2: The Quantum Revolution - A Historical Perspective"
+      - "Subtopic 1"
+      - "Subtopic 2"
+      - "Subtopic 3"
+  - title: "Chapter 2 Title"
     subtopics:
-      - "Roots in Quantum Mechanics: Planck, Bohr, Heisenberg, Schrödinger"
-      - "Feynman's Vision: Simulating Nature with Quantum Systems (1981)"
-      - "Benioff's Quantum Turing Machine (1980)"
-      - "Deutsch's Universal Quantum Computer (1985)"
-      - "Key Algorithmic Breakthroughs: Shor's and Grover's Algorithms"
-      - "Milestones in Hardware Development (1990s - Present)"
+      - "Subtopic 1"
+      - "Subtopic 2"
+```
 
+Here is sample YAML output for book topic "Artificial Intelligence: A Comprehensive Guide":
+
+```yaml
+title: "Artificial Intelligence: A Comprehensive Guide"
+author: "John Doe"
+chapters:
+  - title: "Introduction to Artificial Intelligence"
+    subtopics:
+      - "History of AI"
+      - "Definition and Scope of AI"
+      - "Applications of AI"
+  - title: "Machine Learning"
+    subtopics:
+      - "Supervised Learning"
+      - "Unsupervised Learning"
+      - "Reinforcement Learning"
+  - title: "Deep Learning"
+    subtopics:
+      - "Neural Networks"
+      - "Convolutional Neural Networks"
+      - "Recurrent Neural Networks"
+```
 ## Output verification
-Do not wrap YAML content for markdown formatting. Output should be a valid YAML content. Verify the YAML structure is syntactically correct and can be parsed without errors.
+Do not wrap YAML content for markdown formatting. Output must be a valid YAML content as described in **Output format**. Verify the YAML structure is syntactically correct and can be parsed without errors.

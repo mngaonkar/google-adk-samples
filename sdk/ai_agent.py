@@ -87,7 +87,7 @@ class AIAgent(Agent):
                 if os.path.exists(scripts_dir):
                     count = instance_registry.register_from_scripts_folder(
                         scripts_dir,
-                        prefix=f"{os.path.basename(skill_dir)}_"
+                        prefix=""
                     )
                     logger.info(f"Auto-discovered {count} tools from {scripts_dir}")
         

@@ -9,4 +9,4 @@ tools:
 skills:
   - toc
 output_key: toc_agent_response
-model: gemini-2.5-flash
+model: gemini-2.5-flash-lite

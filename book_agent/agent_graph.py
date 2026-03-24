@@ -8,7 +8,7 @@ import os
 from sdk.workflow_registry import WorkflowRegistry
 from sdk.workflow_factory import WorkflowFactory
 from sdk.tool_registry import ToolRegistry
-from register_skills import register_all_skills
+from sdk.skill_registry import SkillRegistry
 from toc_agent.agent import toc_agent
 from chapter_agent.agent import chapter_agent_parallel
 from collation_agent.agent import collation_agent
@@ -20,11 +20,13 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # Register all skills at startup
-register_all_skills()
+SkillRegistry.register_all_from_directory()
 
 def route_after_toc(state: BookAgentState) -> Literal["chapter_agent_parallel", "toc_agent"]:
     """If TOC YAML is valid, proceed to chapters; otherwise retry toc_agent."""    
-    toc_location = state.get("toc_location") or ""
+    toc_location = state.get("agent_output", {}).get("toc_agent") or ""
+    assert isinstance(toc_location, str), "Expected agent output 'toc_agent' to be a string"
+
     if not toc_location or not os.path.exists(toc_location):
         logger.warning("TOC location missing or file not found, re-running toc_agent")
         return "toc_agent"

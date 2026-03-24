@@ -6,6 +6,8 @@ and their metadata. The actual callable functions are stored in ToolRegistry.
 """
 
 import logging
+import os
+import yaml
 from typing import Dict, List, Any, Optional
 
 logger = logging.getLogger(__name__)
@@ -223,6 +225,103 @@ class SkillRegistry:
         for name, directory in skills.items():
             cls.register(name, directory=directory, category=category, description=description)
         logger.info(f"Registered {len(skills)} skills (category: {category})")
+    
+    @classmethod
+    def register_all_from_directory(cls, skills_directory: str = 'skills') -> int:
+        """
+        Auto-discover and register all skills from a directory.
+        
+        This method:
+        1. Traverses the skills directory recursively
+        2. Finds all SKILL.md files with YAML frontmatter
+        3. Registers each skill in SkillRegistry
+        4. Auto-discovers and registers tools from scripts/ folders in ToolRegistry
+        
+        Args:
+            skills_directory: Base directory containing skill folders (default: 'skills')
+            
+        Returns:
+            Total number of skills registered
+            
+        Example:
+            # Auto-discover and register all skills
+            count = SkillRegistry.register_all_from_directory('my_skills')
+            print(f"Registered {count} skills")
+            
+        Skill Directory Structure:
+            skills/
+              skill_name/
+                SKILL.md              # Must have YAML frontmatter with name & description
+                scripts/
+                  tool1.py            # Auto-discovered as tools
+                  tool2.py
+        """
+        from sdk.tool_registry import ToolRegistry
+        
+        logger.info(f"Auto-discovering skills from: {skills_directory}")
+        
+        skills_registered = 0
+        tools_registered = 0
+        
+        for root, dirs, files in os.walk(skills_directory):
+            for dir_name in dirs:
+                skill_dir_path = os.path.join(root, dir_name)
+                skill_md_path = os.path.join(skill_dir_path, 'SKILL.md')
+                
+                if os.path.exists(skill_md_path):
+                    try:
+                        with open(skill_md_path, 'r') as f:
+                            content = f.read()
+                            
+                            # Parse YAML frontmatter (between --- delimiters)
+                            if content.startswith('---'):
+                                parts = content.split('---', 2)
+                                if len(parts) >= 3:
+                                    # Parse the YAML frontmatter (parts[1])
+                                    frontmatter = yaml.safe_load(parts[1])
+                                    
+                                    skill_name = frontmatter.get('name')
+                                    skill_desc = frontmatter.get('description')
+                                    skill_category = frontmatter.get('category', 'agent')
+                                    
+                                    if skill_name and skill_desc:
+                                        # Register skill metadata in SkillRegistry
+                                        cls.register(
+                                            skill_name,
+                                            directory=skill_dir_path,
+                                            description=skill_desc,
+                                            category=skill_category
+                                        )
+                                        skills_registered += 1
+                                        logger.info(f"✓ Registered skill: {skill_name} (directory: {skill_dir_path})")
+                                        
+                                        # Auto-discover and register tools from scripts folder
+                                        scripts_dir = os.path.join(skill_dir_path, 'scripts')
+                                        if os.path.exists(scripts_dir):
+                                            count = ToolRegistry.register_from_scripts_folder(
+                                                scripts_dir, 
+                                                prefix=""
+                                            )
+                                            if count > 0:
+                                                tools_registered += count
+                                                logger.info(f"  ✓ Registered {count} tools from {scripts_dir}")
+                                    else:
+                                        logger.warning(f"SKILL.md at {skill_md_path} is missing 'name' or 'description' in YAML frontmatter.")
+                                else:
+                                    logger.warning(f"SKILL.md at {skill_md_path} doesn't have proper YAML frontmatter delimiters.")
+                    except yaml.YAMLError as e:
+                        logger.error(f"✗ Failed to parse YAML frontmatter in {skill_md_path}: {e}")
+                    except Exception as e:
+                        logger.error(f"✗ Error processing {skill_md_path}: {e}")
+        
+        logger.info(f"✓ Registered {skills_registered} skills and {tools_registered} tools")
+        
+        # Log by category
+        by_category = cls.list_by_category()
+        for category, skills in by_category.items():
+            logger.info(f"  {category}: {', '.join(skills)}")
+        
+        return skills_registered
     
     @classmethod
     def unregister(cls, name: str) -> None:

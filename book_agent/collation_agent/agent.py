@@ -1,5 +1,3 @@
-from google.adk.agents.llm_agent import Agent
-from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 from google.genai.types import ThinkingConfig, GenerateContentConfig
@@ -8,11 +6,7 @@ from google.adk.tools import google_search
 from google.adk.planners import PlanReActPlanner
 from google.adk.code_executors import BuiltInCodeExecutor
 from google.adk.agents.sequential_agent import SequentialAgent
-import os
-import asyncio
-import uuid
 import logging
-from utils.read_file import read_file_content
 from agent_state import BookAgentState
 from sdk.ai_agent import AIAgent
 from sdk.utils import save_to_file

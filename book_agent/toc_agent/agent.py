@@ -32,6 +32,7 @@ logger.info("Table of Contents agent initialized.")
 
 def toc_agent(state: AgentState) -> AgentState:
     result = agent.run_sync(state["topic_description"])
+    logger.debug(f"TOC agent generated response: {result}")
     save_to_file(result["final_response"], TOC_OUTPUT_FILE)
     logger.info(f"TOC agent response saved to {TOC_OUTPUT_FILE}")
     state["toc_location"] = TOC_OUTPUT_FILE

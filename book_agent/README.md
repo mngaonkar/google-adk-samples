@@ -1,6 +1,8 @@
 # Book Agent
 This project demonstrates how to create a book agent using the Google ADK. The book agent is designed to generate comprehensive content on a specific topic, organize it into chapters, and ensure that the information is accurate and well-structured.
 
+> **Note:** This agent uses the shared SDK located at `/sdk` in the workspace root. The SDK provides agent factories, registries, and utilities that can be used by any agent in the workspace.
+
 ## Agent Architecture
 
 ```mermaid

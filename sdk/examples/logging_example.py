@@ -14,7 +14,7 @@ def example_basic_logging():
     print("\n=== Example 1: Basic Logging ===")
     
     # Logging is auto-configured, but you can customize it
-    setup_logging(level=logging.INFO)
+    setup_logging(level='INFO')
     
     logger = get_logger(__name__)
     logger.info("This is an info message")
@@ -28,7 +28,7 @@ def example_debug_mode():
     print("\n=== Example 2: Debug Mode ===")
     
     # Switch to debug level
-    setup_logging(level=logging.DEBUG, force=True)
+    setup_logging(level='DEBUG', force=True)
     
     logger = get_logger(__name__)
     logger.debug("Now debug messages are visible!")
@@ -41,7 +41,7 @@ def example_with_file():
     
     # Configure with file output
     setup_logging(
-        level=logging.INFO,
+        level='INFO',
         log_file='example_sdk.log',
         force=True
     )
@@ -73,14 +73,14 @@ def example_runtime_level_change():
     """Example 5: Change log level at runtime"""
     print("\n=== Example 5: Runtime Level Change ===")
     
-    setup_logging(level=logging.INFO, force=True)
+    setup_logging(level='INFO', force=True)
     logger = get_logger(__name__)
     
     logger.info("Starting with INFO level")
     logger.debug("This won't show")
     
     # Change to DEBUG
-    set_log_level(logging.DEBUG)
+    set_log_level('DEBUG')
     logger.debug("Now debug messages show after level change!")
 
 
@@ -88,7 +88,7 @@ def example_with_sdk_components():
     """Example 6: SDK components use the same logging"""
     print("\n=== Example 6: SDK Components ===")
     
-    setup_logging(level=logging.INFO, force=True)
+    setup_logging(level='INFO', force=True)
     
     # All SDK components now use centralized logging
     # This will log using the configured setup
@@ -108,7 +108,7 @@ def example_custom_format():
     print("\n=== Example 7: Custom Format ===")
     
     setup_logging(
-        level=logging.INFO,
+        level='INFO',
         format_string='[%(levelname)s] %(name)s: %(message)s',
         force=True
     )

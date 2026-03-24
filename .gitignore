@@ -8,3 +8,15 @@ logs/
 output/
 workspace/
 .vscode/
+
+# Python packaging
+build/
+dist/
+*.egg-info
+*.egg
+.eggs/
+
+# Virtual environments
+venv/
+env/
+ENV/

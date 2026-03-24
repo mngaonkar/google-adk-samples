@@ -1,0 +1,8 @@
+include SDK_README.md
+include LICENSE
+include pyproject.toml
+recursive-include sdk *.py
+recursive-include sdk *.md
+recursive-exclude sdk __pycache__
+recursive-exclude sdk *.pyc
+recursive-exclude sdk *.pyo

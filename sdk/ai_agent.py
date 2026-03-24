@@ -5,16 +5,15 @@ from google.adk.agents.base_agent import BaseAgent
 from google.genai import types
 from sdk.utils import read_from_file
 from sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY
+from sdk.logging_config import get_logger
 import asyncio
 import uuid
-import logging
 import os
 from typing import Optional, Any, Union, List
 from pydantic import Field
 import json
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 class AIAgent(Agent):
     """Extended Agent with convenient initialization and run methods."""

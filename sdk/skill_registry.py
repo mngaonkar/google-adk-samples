@@ -5,12 +5,12 @@ This module provides a centralized registry to manage agent skills (sub-agents)
 and their metadata. The actual callable functions are stored in ToolRegistry.
 """
 
-import logging
 import os
 import yaml
 from typing import Dict, List, Any, Optional
+from sdk.logging_config import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class SkillRegistry:

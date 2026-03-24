@@ -11,6 +11,7 @@ from sdk.tool_registry import ToolRegistry
 from sdk.skill_registry import SkillRegistry
 from sdk.workflow_registry import WorkflowRegistry
 from sdk.workflow_factory import WorkflowFactory, register_workflow_functions
+from sdk.logging_config import setup_logging, get_logger, set_log_level
 from sdk import utils
 from sdk import constants
 
@@ -23,6 +24,9 @@ __all__ = [
     'WorkflowFactory',
     'WorkflowRegistry',
     'register_workflow_functions',
+    'setup_logging',
+    'get_logger',
+    'set_log_level',
     'utils',
     'constants',
 ]

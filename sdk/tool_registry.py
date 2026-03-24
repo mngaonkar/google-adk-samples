@@ -1,11 +1,11 @@
-import logging
 import os
 import importlib.util
 import inspect
 from typing import Any, Dict, List, Callable
 from pathlib import Path
+from sdk.logging_config import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 class ToolRegistry:
     """Registry to map tool names to actual tool objects."""

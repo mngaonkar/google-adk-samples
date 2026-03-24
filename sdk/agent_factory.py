@@ -7,14 +7,14 @@ and declarative.
 """
 
 import yaml
-import logging
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 from sdk.ai_agent import AIAgent
 from sdk.constants import DEFAULT_MODEL
 from sdk.tool_registry import ToolRegistry
+from sdk.logging_config import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class AgentFactory:

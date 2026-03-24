@@ -5,10 +5,10 @@ This module provides a centralized registry to map function names to actual
 callable functions used in LangGraph workflows.
 """
 
-import logging
 from typing import Callable, Dict, List
+from sdk.logging_config import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class WorkflowRegistry:

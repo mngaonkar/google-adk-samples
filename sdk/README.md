@@ -15,6 +15,29 @@ The Agent Factory provides a clean, declarative way to define and instantiate AI
 - **Auto-Discovery**: Functions in skill directories are automatically registered as tools
 - **Combined Instructions**: SKILL.md files from all referenced skills are appended to agent instructions
 - **Declarative Configuration**: Define agents entirely in YAML without boilerplate code
+- **Centralized Logging**: Unified logging configuration across all SDK components
+
+## Logging
+
+The SDK includes centralized logging configuration for consistent logging across all modules.
+
+```python
+from sdk import setup_logging, get_logger
+import logging
+
+# Configure logging at application startup
+setup_logging(level=logging.INFO)
+
+# Or use environment variables
+# export SDK_LOG_LEVEL=DEBUG
+# export SDK_LOG_FILE=app.log
+
+# Get logger in your code
+logger = get_logger(__name__)
+logger.info("This is a log message")
+```
+
+**See [LOGGING.md](LOGGING.md) for complete documentation.**
 
 ## Quick Start
 

@@ -12,13 +12,13 @@ Note: WorkflowRegistry has been moved to sdk.workflow_registry for better modula
 """
 
 import yaml
-import logging
 from typing import Any, Dict, Callable, Optional
 from pathlib import Path
 from langgraph.graph import StateGraph, START, END
 from sdk.workflow_registry import WorkflowRegistry
+from sdk.logging_config import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class WorkflowFactory:

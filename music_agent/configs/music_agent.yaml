@@ -4,6 +4,7 @@ name: music_agent
 description: An agent to create a song from given theme and mood.
 tools:
   - tavily_search
+skills_directory: /Users/mahadevgaonkar/code/google-adk-samples/skills
 skills:
   - ace-music
 output_key: music_agent_response

@@ -4,7 +4,7 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.agents.base_agent import BaseAgent
 from google.genai import types
 from declarative_agent_sdk.utils import read_from_file
-from declarative_agent_sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY
+from declarative_agent_sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS
 from declarative_agent_sdk.logging_config import get_logger
 from declarative_agent_sdk.token_utils import fit_to_context_window
 import asyncio
@@ -31,7 +31,8 @@ class AIAgent(Agent):
                  name: str, 
                  instruction_file: str,
                  description: str = '',
-                 tools: list | None = None, 
+                 tools: list | None = None,
+                 skills_directory: str | None = None, 
                  skills: List[str] | None = None,
                  input_key_map: dict[str, str] | None = None,
                  output_key: str | None = None,
@@ -86,7 +87,7 @@ class AIAgent(Agent):
         # Auto-discover tools from skills directories and append SKILL.md content
         if skills:
             for skill_dir in skills:
-                skill_dir = os.path.join(SKILLS_DIRECTORY, skill_dir)
+                skill_dir = os.path.join(skills_directory, skill_dir)
                 if not os.path.exists(skill_dir):
                     raise FileNotFoundError(f"Skill directory not found: {skill_dir}")
                 

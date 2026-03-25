@@ -248,6 +248,39 @@ skills:
 
 ---
 
+## Installation
+
+Install the SDK directly from GitHub:
+
+```bash
+pip install git+https://github.com/mngaonkar/google-adk-samples.git#subdirectory=sdk
+```
+
+### Optional Dependencies
+
+```bash
+# Install with vLLM provider support
+pip install "git+https://github.com/mngaonkar/google-adk-samples.git#subdirectory=sdk[vllm]"
+
+# Install with enhanced tool support (includes Tavily and other tools)
+pip install "git+https://github.com/mngaonkar/google-adk-samples.git#subdirectory=sdk[tools]"
+
+# Install all features (vLLM + tools + dev dependencies)
+pip install "git+https://github.com/mngaonkar/google-adk-samples.git#subdirectory=sdk[all]"
+```
+
+### Local Development
+
+For contributing or local development:
+
+```bash
+git clone https://github.com/mngaonkar/google-adk-samples.git
+cd google-adk-samples
+pip install -e ./sdk
+```
+
+---
+
 ## Quick Start: Build Your First Agent in 5 Minutes
 
 ### Step 1: Create a Skill

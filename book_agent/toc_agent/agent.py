@@ -13,11 +13,11 @@ import asyncio
 import uuid
 import logging
 from utils.read_file import read_file_content
-from sdk.ai_agent import AIAgent
+from declarative_agent_sdk.ai_agent import AIAgent
 from agent_state import BookAgentState
-from sdk.utils import save_to_file
-from sdk.agent_factory import AgentFactory
-from sdk.constants import WORKSPACE_DIRECTORY
+from declarative_agent_sdk.utils import save_to_file
+from declarative_agent_sdk.agent_factory import AgentFactory
+from declarative_agent_sdk.constants import WORKSPACE_DIRECTORY
 from utils.remove_think_content import remove_think_content
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

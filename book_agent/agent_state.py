@@ -1,5 +1,5 @@
 from typing import TypedDict, List
-from sdk.agent_state import AgentState
+from declarative_agent_sdk.agent_state import AgentState
 
 class BookAgentState(AgentState):
     topic_description: str

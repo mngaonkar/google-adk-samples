@@ -1,4 +1,4 @@
-from sdk.utils import read_from_file
+from declarative_agent_sdk.utils import read_from_file
 import uuid
 from markdown_pdf import Section, MarkdownPdf
 import logging

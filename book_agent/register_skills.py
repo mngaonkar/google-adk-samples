@@ -4,14 +4,14 @@ Register Skills - Central location for registering all agent skills.
 This module provides a convenience wrapper around SkillRegistry.register_all_from_directory()
 for backward compatibility. New code should import directly from SDK:
 
-    from sdk import SkillRegistry
+    from declarative_agent_sdk import SkillRegistry
     SkillRegistry.register_all_from_directory('skills/')
 """
 
 import logging
-from sdk.skill_registry import SkillRegistry
-from sdk.tool_registry import ToolRegistry
-from sdk.constants import SKILLS_DIRECTORY
+from declarative_agent_sdk.skill_registry import SkillRegistry
+from declarative_agent_sdk.tool_registry import ToolRegistry
+from declarative_agent_sdk.constants import SKILLS_DIRECTORY
 
 logger = logging.getLogger(__name__)
 

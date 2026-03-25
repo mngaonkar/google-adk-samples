@@ -8,11 +8,11 @@ from google.adk.code_executors import BuiltInCodeExecutor
 from google.adk.agents.sequential_agent import SequentialAgent
 import logging
 from agent_state import BookAgentState
-from sdk.ai_agent import AIAgent
-from sdk.utils import save_to_file
+from declarative_agent_sdk.ai_agent import AIAgent
+from declarative_agent_sdk.utils import save_to_file
 from skills.collation.scripts.create_pdf_file import create_pdf_file
-from sdk.tool_registry import ToolRegistry
-from sdk.agent_factory import AgentFactory
+from declarative_agent_sdk.tool_registry import ToolRegistry
+from declarative_agent_sdk.agent_factory import AgentFactory
 
 logger = logging.getLogger(__name__)
 

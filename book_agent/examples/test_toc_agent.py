@@ -10,11 +10,11 @@ import os
 import asyncio
 from pathlib import Path
 
-# Add parent directory to path to import sdk
+# Add parent directory to path to import declarative_agent_sdk
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from sdk import AgentFactory, setup_logging
-from sdk.logging_config import get_logger
+from declarative_agent_sdk import AgentFactory, setup_logging
+from declarative_agent_sdk.logging_config import get_logger
 
 # Setup logging
 setup_logging(level="DEBUG")

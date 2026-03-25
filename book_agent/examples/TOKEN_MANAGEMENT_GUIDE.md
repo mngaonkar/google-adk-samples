@@ -86,7 +86,7 @@ truncate_strategy: end
 ### Example 2: Dictionary Configuration
 
 ```python
-from sdk import AgentFactory
+from declarative_agent_sdk import AgentFactory
 
 config = {
     "name": "my_agent",
@@ -110,7 +110,7 @@ agent = AgentFactory.from_dict(config)
 
 ```python
 import asyncio
-from sdk import AgentFactory
+from declarative_agent_sdk import AgentFactory
 
 async def main():
     agent = AgentFactory.from_yaml_file("config.yaml")

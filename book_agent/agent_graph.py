@@ -5,10 +5,10 @@ from dotenv import load_dotenv
 import logging
 import asyncio
 import os
-from sdk.workflow_registry import WorkflowRegistry
-from sdk.workflow_factory import WorkflowFactory
-from sdk.tool_registry import ToolRegistry
-from sdk.skill_registry import SkillRegistry
+from declarative_agent_sdk.workflow_registry import WorkflowRegistry
+from declarative_agent_sdk.workflow_factory import WorkflowFactory
+from declarative_agent_sdk.tool_registry import ToolRegistry
+from declarative_agent_sdk.skill_registry import SkillRegistry
 from toc_agent.agent import toc_agent
 from chapter_agent.agent import chapter_agent_parallel
 from collation_agent.agent import collation_agent

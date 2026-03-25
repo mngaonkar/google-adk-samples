@@ -12,6 +12,6 @@ output_key: toc_agent_response
 provider: vllm
 model: Qwen/Qwen3-4B-Thinking-2507-FP8
 endpoint:
-  url: http://10.0.0.147:8000/v1
+  url: http://mahadev-ms7d28:8000/v1
   max_tokens: 4096
   temperature: 0.8

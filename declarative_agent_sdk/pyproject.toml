@@ -79,12 +79,12 @@ Repository = "https://github.com/mngaonkar/google-adk-samples"
 "Bug Tracker" = "https://github.com/mngaonkar/google-adk-samples/issues"
 
 # Package discovery configuration
-# The package is called "sdk" and source files are in the current directory
+# The package is called "declarative_agent_sdk" and source files are in the current directory
 [tool.setuptools]
-packages = ["sdk"]
+packages = ["declarative_agent_sdk"]
 
 [tool.setuptools.package-dir]
-sdk = "."
+declarative_agent_sdk = "."
 
 # Black formatting configuration
 [tool.black]

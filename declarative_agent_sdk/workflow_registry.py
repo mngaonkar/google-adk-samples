@@ -6,7 +6,7 @@ callable functions used in LangGraph workflows.
 """
 
 from typing import Callable, Dict, List
-from sdk.logging_config import get_logger
+from declarative_agent_sdk.logging_config import get_logger
 
 logger = get_logger(__name__)
 

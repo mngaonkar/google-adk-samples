@@ -5,7 +5,7 @@ This demonstrates how to use ModelFactory to create model objects
 for different LLM providers (Google Gemini, vLLM, etc.).
 """
 
-from sdk import ModelFactory
+from declarative_agent_sdk import ModelFactory
 
 def example_google_gemini():
     """Example: Create a Google Gemini model (default provider)."""

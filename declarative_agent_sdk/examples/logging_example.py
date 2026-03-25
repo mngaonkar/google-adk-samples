@@ -5,7 +5,7 @@ This example demonstrates how to use the centralized logging configuration
 in the declarative-agent-sdk.
 """
 
-from sdk import setup_logging, get_logger, set_log_level, SkillRegistry
+from declarative_agent_sdk import setup_logging, get_logger, set_log_level, SkillRegistry
 import logging
 
 

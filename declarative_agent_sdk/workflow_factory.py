@@ -6,17 +6,17 @@ YAML definitions, making workflow configuration more maintainable.
 
 Note: WorkflowRegistry has been moved to sdk.workflow_registry for better modularity.
       Both import patterns work:
-      - from sdk import WorkflowFactory, WorkflowRegistry  (recommended)
-      - from sdk.workflow_factory import WorkflowFactory
-      - from sdk.workflow_registry import WorkflowRegistry
+      - from declarative_agent_sdk import WorkflowFactory, WorkflowRegistry  (recommended)
+      - from declarative_agent_sdk.workflow_factory import WorkflowFactory
+      - from declarative_agent_sdk.workflow_registry import WorkflowRegistry
 """
 
 import yaml
 from typing import Any, Dict, Callable, Optional
 from pathlib import Path
 from langgraph.graph import StateGraph, START, END
-from sdk.workflow_registry import WorkflowRegistry
-from sdk.logging_config import get_logger
+from declarative_agent_sdk.workflow_registry import WorkflowRegistry
+from declarative_agent_sdk.logging_config import get_logger
 
 logger = get_logger(__name__)
 

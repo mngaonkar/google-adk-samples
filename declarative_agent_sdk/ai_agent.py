@@ -3,10 +3,10 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.adk.agents.base_agent import BaseAgent
 from google.genai import types
-from sdk.utils import read_from_file
-from sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY
-from sdk.logging_config import get_logger
-from sdk.token_utils import fit_to_context_window
+from declarative_agent_sdk.utils import read_from_file
+from declarative_agent_sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY
+from declarative_agent_sdk.logging_config import get_logger
+from declarative_agent_sdk.token_utils import fit_to_context_window
 import asyncio
 import uuid
 import os
@@ -78,7 +78,7 @@ class AIAgent(Agent):
         
         # Create instance-level tool registry (isolated from global registry)
         # This ensures each agent has its own set of tools without conflicts
-        from sdk.tool_registry import ToolRegistry
+        from declarative_agent_sdk.tool_registry import ToolRegistry
         instance_registry = type('InstanceToolRegistry', (ToolRegistry,), {
             '_tools': {},  # Instance-specific tools dict
         })

@@ -73,7 +73,7 @@ output_key: chapter_response
 Load it in one line:
 
 ```python
-from sdk import AgentFactory
+from declarative_agent_sdk import AgentFactory
 
 agent = AgentFactory.from_yaml_file('configs/chapter_agent.yaml')
 ```
@@ -108,7 +108,7 @@ endpoint:
 The `ModelFactory` handles provider-specific configurations automatically:
 
 ```python
-from sdk import ModelFactory
+from declarative_agent_sdk import ModelFactory
 
 # Create a Google Gemini model
 gemini = ModelFactory.create_model(
@@ -253,20 +253,20 @@ skills:
 Install the SDK directly from GitHub:
 
 ```bash
-pip install git+https://github.com/mngaonkar/google-adk-samples.git#subdirectory=sdk
+pip install git+https://github.com/mngaonkar/google-adk-samples.git#subdirectory=declarative_agent_sdk
 ```
 
 ### Optional Dependencies
 
 ```bash
 # Install with vLLM provider support
-pip install "git+https://github.com/mngaonkar/google-adk-samples.git#subdirectory=sdk[vllm]"
+pip install "git+https://github.com/mngaonkar/google-adk-samples.git#subdirectory=declarative_agent_sdk[vllm]"
 
 # Install with enhanced tool support (includes Tavily and other tools)
-pip install "git+https://github.com/mngaonkar/google-adk-samples.git#subdirectory=sdk[tools]"
+pip install "git+https://github.com/mngaonkar/google-adk-samples.git#subdirectory=declarative_agent_sdk[tools]"
 
 # Install all features (vLLM + tools + dev dependencies)
-pip install "git+https://github.com/mngaonkar/google-adk-samples.git#subdirectory=sdk[all]"
+pip install "git+https://github.com/mngaonkar/google-adk-samples.git#subdirectory=declarative_agent_sdk[all]"
 ```
 
 ### Local Development
@@ -276,7 +276,7 @@ For contributing or local development:
 ```bash
 git clone https://github.com/mngaonkar/google-adk-samples.git
 cd google-adk-samples
-pip install -e ./sdk
+pip install -e ./declarative_agent_sdk
 ```
 
 ---
@@ -326,7 +326,7 @@ output_key: result
 ### Step 3: Run Your Agent
 
 ```python
-from sdk import AgentFactory
+from declarative_agent_sdk import AgentFactory
 import asyncio
 
 async def main():
@@ -348,7 +348,7 @@ asyncio.run(main())
 ### Multi-Agent Workflows with Token Management
 
 ```python
-from sdk import AgentFactory
+from declarative_agent_sdk import AgentFactory
 
 # Research agent with large context window (processes long documents)
 researcher = AgentFactory.from_yaml_file('configs/research_agent.yaml')
@@ -367,7 +367,7 @@ chapter = await writer.run(f"Write chapter using: {research_data}")
 
 ```python
 import os
-from sdk import AgentFactory
+from declarative_agent_sdk import AgentFactory
 
 env = os.getenv('ENVIRONMENT', 'dev')
 
@@ -381,7 +381,7 @@ agent = AgentFactory.from_yaml_file(f'configs/agent.{env}.yaml')
 ### Dynamic Agent Creation
 
 ```python
-from sdk import AgentFactory
+from declarative_agent_sdk import AgentFactory
 
 # Create agents programmatically
 config = {
@@ -493,7 +493,7 @@ endpoint:
 ### 4. Monitor Token Usage
 
 ```python
-from sdk import get_logger
+from declarative_agent_sdk import get_logger
 
 logger = get_logger(__name__)
 
@@ -698,7 +698,7 @@ def route_after_toc(state: BookState) -> str:
 #### Step 3: Register Workflow Functions
 
 ```python
-from sdk import WorkflowRegistry
+from declarative_agent_sdk import WorkflowRegistry
 
 # Register all workflow nodes and routers
 WorkflowRegistry.register("toc_agent", toc_agent)
@@ -758,7 +758,7 @@ conditional_edges:
 #### Step 5: Compile and Run
 
 ```python
-from sdk import WorkflowFactory
+from declarative_agent_sdk import WorkflowFactory
 
 # Compile workflow from YAML
 workflow = WorkflowFactory.compile_from_yaml(
@@ -804,7 +804,7 @@ The **WorkflowRegistry** stores the mapping between function names (used in YAML
 #### Register Functions
 
 ```python
-from sdk import WorkflowRegistry
+from declarative_agent_sdk import WorkflowRegistry
 
 # Register individual function
 WorkflowRegistry.register('my_agent', my_agent_function)
@@ -848,7 +848,7 @@ The **WorkflowFactory** builds LangGraph StateGraph workflows from YAML configur
 #### Create from YAML File
 
 ```python
-from sdk import WorkflowFactory
+from declarative_agent_sdk import WorkflowFactory
 from my_state import MyState
 
 # Load and compile workflow
@@ -980,7 +980,7 @@ conditional_edges:
 
 ```python
 from typing import Literal
-from sdk import WorkflowRegistry, WorkflowFactory
+from declarative_agent_sdk import WorkflowRegistry, WorkflowFactory
 
 # Define router with type hints for LangGraph
 def route_after_toc(state: BookState) -> Literal["chapter_agent_parallel", "toc_agent"]:
@@ -1315,7 +1315,7 @@ conditional_edges:
 ```
 
 ```python
-from sdk import WorkflowRegistry, WorkflowFactory
+from declarative_agent_sdk import WorkflowRegistry, WorkflowFactory
 
 # Register functions
 WorkflowRegistry.register_multiple({
@@ -1347,7 +1347,7 @@ compiled = WorkflowFactory.compile_from_yaml(
 Manages callable functions and tools.
 
 ```python
-from sdk import ToolRegistry
+from declarative_agent_sdk import ToolRegistry
 
 # Manual registration (global tools)
 def my_custom_tool(query: str) -> str:
@@ -1371,7 +1371,7 @@ tools = ToolRegistry.list_available()
 Stores skill metadata and directories.
 
 ```python
-from sdk import SkillRegistry
+from declarative_agent_sdk import SkillRegistry
 
 # Register a skill
 SkillRegistry.register(
@@ -1393,7 +1393,7 @@ skills = SkillRegistry.list_available()
 Stores workflow functions and routers for multi-agent workflows.
 
 ```python
-from sdk import WorkflowRegistry
+from declarative_agent_sdk import WorkflowRegistry
 
 # Register workflow functions
 def my_agent(state):
@@ -1587,7 +1587,7 @@ max_tokens: 8192
 ```
 
 ```python
-from sdk import AgentFactory
+from declarative_agent_sdk import AgentFactory
 
 # One line!
 agent = AgentFactory.from_yaml_file('configs/my_agent.yaml')
@@ -1690,7 +1690,7 @@ context_window: 20384
 
 ```python
 import os
-from sdk import AgentFactory
+from declarative_agent_sdk import AgentFactory
 
 env = os.getenv('ENV', 'dev')
 agent = AgentFactory.from_yaml_file(f'configs/agent.{env}.yaml')
@@ -1703,7 +1703,7 @@ agent = AgentFactory.from_yaml_file(f'configs/agent.{env}.yaml')
 Configure logging across all SDK components.
 
 ```python
-from sdk import setup_logging, get_logger
+from declarative_agent_sdk import setup_logging, get_logger
 import logging
 
 # Setup at application start
@@ -1820,7 +1820,7 @@ skills:
 
 ```python
 import pytest
-from sdk import AgentFactory
+from declarative_agent_sdk import AgentFactory
 
 @pytest.fixture
 def test_agent():

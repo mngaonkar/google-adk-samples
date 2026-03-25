@@ -8,7 +8,7 @@ and their metadata. The actual callable functions are stored in ToolRegistry.
 import os
 import yaml
 from typing import Dict, List, Any, Optional
-from sdk.logging_config import get_logger
+from declarative_agent_sdk.logging_config import get_logger
 
 logger = get_logger(__name__)
 
@@ -30,7 +30,7 @@ class SkillRegistry:
         directory = SkillRegistry.get_directory('toc_agent')
         
         # Get skill function from ToolRegistry
-        from sdk.tool_registry import ToolRegistry
+        from declarative_agent_sdk.tool_registry import ToolRegistry
         toc_agent = ToolRegistry.get('toc_agent')
         
         # List all registered
@@ -256,7 +256,7 @@ class SkillRegistry:
                   tool1.py            # Auto-discovered as tools
                   tool2.py
         """
-        from sdk.tool_registry import ToolRegistry
+        from declarative_agent_sdk.tool_registry import ToolRegistry
         
         logger.info(f"Auto-discovering skills from: {skills_directory}")
         

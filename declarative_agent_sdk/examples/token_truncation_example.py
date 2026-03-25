@@ -7,7 +7,7 @@ limited context windows.
 """
 
 import asyncio
-from sdk import AgentFactory, get_logger
+from declarative_agent_sdk import AgentFactory, get_logger
 
 logger = get_logger(__name__)
 

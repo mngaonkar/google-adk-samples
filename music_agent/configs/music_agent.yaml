@@ -1,0 +1,15 @@
+# Muisc agent configuration file
+
+name: music_agent
+description: An agent to create a song from given theme and mood.
+tools:
+  - tavily_search
+skills:
+  - ace-music
+output_key: music_agent_response
+provider: vllm
+model: Qwen/Qwen3-4B-Thinking-2507-FP8
+endpoint:
+  url: http://mahadev-ms7d28:8000/v1
+  max_tokens: 4096
+  temperature: 0.8

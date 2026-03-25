@@ -109,7 +109,7 @@ class AIAgent(Agent):
         
         # Resolve tool names from YAML to actual tool objects
         # Tools can be specified as strings (tool names) or tool objects
-        resolved_tools = []
+        resolved_tools = instance_registry.get_all()  # Start with all tools from skills
         if tools:
             for tool_item in tools:
                 if isinstance(tool_item, str):
@@ -121,8 +121,6 @@ class AIAgent(Agent):
                 else:
                     # Already a tool object
                     resolved_tools.append(tool_item)
-        
-        tools = resolved_tools
         
         # Define automatic function calling config
         # Controls how many rounds of tool calls the agent can make

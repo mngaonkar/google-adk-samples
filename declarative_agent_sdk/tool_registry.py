@@ -33,6 +33,11 @@ class ToolRegistry:
         return [cls.get(name) for name in names]
     
     @classmethod
+    def get_all(cls) -> List[Any]:
+        """Get the entire tool registry."""
+        return list(cls._tools.values())
+    
+    @classmethod
     def list_available(cls) -> List[str]:
         """List all available tool names."""
         return list(cls._tools.keys())

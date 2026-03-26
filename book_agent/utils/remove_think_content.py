@@ -10,5 +10,10 @@ def remove_think_content(content: str) -> str:
     """
     import re
     # Use regex to remove all occurrences of <think>...</think>
-    cleaned_content = content.split("</think>")[1]  # Take content after the first </think>
+    cleaned_content = content.split("</think>")  # Take content after the first </think>
+    if len(cleaned_content) > 1:
+        cleaned_content = cleaned_content[1]
+    else:
+        cleaned_content = ''
+
     return cleaned_content.strip()

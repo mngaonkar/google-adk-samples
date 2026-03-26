@@ -32,6 +32,9 @@ def toc_agent(state: BookAgentState) -> BookAgentState:
     logger.debug(f"TOC agent generated response: {result}")
     agent_output_file = os.path.join(WORKSPACE_DIRECTORY, agent.name)
 
+    if not os.path.exists(WORKSPACE_DIRECTORY):
+        os.makedirs(WORKSPACE_DIRECTORY)
+
     reponse = result.get("final_response", "")
     response = remove_think_content(reponse)
     save_to_file(response, agent_output_file)

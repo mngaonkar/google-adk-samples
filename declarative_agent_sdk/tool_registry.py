@@ -159,7 +159,7 @@ def register_common_tools():
             ToolRegistry.register('tavily_search', tavily_search)
             logger.info("Registered tavily_search tool from Langchain")
         else:
-            logger.debug("TAVILY_API_KEY not found in environment, skipping Tavily registration")
+            logger.info("TAVILY_API_KEY not found in environment, skipping Tavily registration")
     except ImportError:
         logger.debug("Tavily search tool not available (langchain_community not installed)")
 

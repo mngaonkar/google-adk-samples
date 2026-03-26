@@ -3,7 +3,6 @@ from declarative_agent_sdk.logging_config import setup_logging, get_logger
 setup_logging(level="INFO")
 logger = get_logger(__name__)
 
-from declarative_agent_sdk.tool_registry import ToolRegistry
 from declarative_agent_sdk import AgentFactory
 import os
 from declarative_agent_sdk.utils import save_to_file

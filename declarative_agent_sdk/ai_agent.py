@@ -4,7 +4,7 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.agents.base_agent import BaseAgent
 from google.genai import types
 from declarative_agent_sdk.utils import read_from_file
-from declarative_agent_sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS
+from declarative_agent_sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY
 from declarative_agent_sdk.logging_config import get_logger
 from declarative_agent_sdk.token_utils import fit_to_context_window
 import asyncio
@@ -12,7 +12,6 @@ import uuid
 import os
 from typing import Optional, Any, Union, List
 from pydantic import Field
-import json
 
 logger = get_logger(__name__)
 
@@ -20,7 +19,7 @@ class AIAgent(Agent):
     """Extended Agent with convenient initialization and run methods."""
     instruction_file: str = Field(default="", exclude=True)
     input_key_map: dict[str, str] = Field(default_factory=dict, exclude=True)
-    tool_registry: Any = Field(default=None, exclude=True)
+    skills_registry: Any = Field(default=None, exclude=True)
     context_window: Optional[int] = Field(default=None, exclude=True)
     max_output_tokens: Optional[int] = Field(default=None, exclude=True)
     enable_truncation: bool = Field(default=False, exclude=True)
@@ -32,7 +31,7 @@ class AIAgent(Agent):
                  instruction_file: str,
                  description: str = '',
                  tools: list | None = None,
-                 skills_directory: str | None = None, 
+                 skills_directory: str = SKILLS_DIRECTORY, 
                  skills: List[str] | None = None,
                  input_key_map: dict[str, str] | None = None,
                  output_key: str | None = None,
@@ -50,6 +49,7 @@ class AIAgent(Agent):
             instruction_file: Path to the main instruction file (markdown format)
             description: Brief description of the agent's purpose
             tools: List of tool names (strings) or tool objects to provide to the agent
+            skills_directory: Base directory for skills (defaults to SKILLS_DIRECTORY constant)
             skills: List of skill directory names to auto-discover tools from.
                    Each skill directory should contain:
                    - SKILL.md: Instructions to append to agent's instruction text
@@ -76,47 +76,40 @@ class AIAgent(Agent):
         # Read main instruction file
         # Read main instruction file
         instruction_text = read_from_file(instruction_file) if instruction_file else ''
-        
-        # Create instance-level tool registry (isolated from global registry)
-        # This ensures each agent has its own set of tools without conflicts
-        from declarative_agent_sdk.tool_registry import ToolRegistry
-        instance_registry = type('InstanceToolRegistry', (ToolRegistry,), {
-            '_tools': {},  # Instance-specific tools dict
-        })
-        
-        # Auto-discover tools from skills directories and append SKILL.md content
-        if skills:
-            for skill_dir in skills:
-                skill_dir = os.path.join(skills_directory, skill_dir)
-                if not os.path.exists(skill_dir):
-                    raise FileNotFoundError(f"Skill directory not found: {skill_dir}")
                 
-                # Append SKILL.md content to instruction text
-                # This provides domain-specific knowledge to the agent
-                skill_md_path = os.path.join(skill_dir, 'SKILL.md')
-                if os.path.exists(skill_md_path):
-                    skill_instruction = read_from_file(skill_md_path)
-                    instruction_text += f"\n\n# Skill: {os.path.basename(skill_dir)}\n{skill_instruction}"
-                    logger.info(f"Appended SKILL.md from {skill_dir}")
+        # Create instance-level skill registry (isolated from global registry)
+        # This allows for instance-specific skill management if needed in the future
+        from declarative_agent_sdk.skill_registry import SkillRegistry
+        skills_registry = type('InstanceSkillRegistry', (SkillRegistry,), {
+            '_skills': {},  # Instance-specific skills dict
+        })
 
-                # Auto-discover and register tools from scripts/ folder
-                scripts_dir = os.path.join(skill_dir, 'scripts')
-                if os.path.exists(scripts_dir):
-                    count = instance_registry.register_from_scripts_folder(
-                        scripts_dir,
-                        prefix=""
-                    )
-                    logger.info(f"Auto-discovered {count} tools from {scripts_dir}")
-        
+        # Register skill from specified directories
+        if skills:
+            skills_registry.register_multiple_from_directory(skill_directory=skills_directory, skills_list=skills)
+
+        # TODO: load instructions from the first skill.
+        if skills:
+            skill_dir = os.path.join(skills_directory, skills[0])
+            if not os.path.exists(skill_dir):
+                raise FileNotFoundError(f"Skill directory not found: {skill_dir}")
+                
+            # Append SKILL.md content to instruction text
+            skill_md_path = os.path.join(skill_dir, 'SKILL.md')
+            if os.path.exists(skill_md_path):
+                skill_instruction = read_from_file(skill_md_path)
+                instruction_text += f"\n\n# Skill: {os.path.basename(skill_dir)}\n{skill_instruction}"
+                logger.info(f"Appended SKILL.md from {skill_dir}")
+
         # Resolve tool names from YAML to actual tool objects
         # Tools can be specified as strings (tool names) or tool objects
-        resolved_tools = instance_registry.get_all()  # Start with all tools from skills
+        resolved_tools = skills_registry._get_tool_registry().get_all()  # Start with all tools from skills
         if tools:
             for tool_item in tools:
                 if isinstance(tool_item, str):
                     # Tool name - resolve from instance registry
                     try:
-                        resolved_tools.append(instance_registry.get(tool_item))
+                        resolved_tools.append(skills_registry._get_tool_registry().get(tool_item))
                     except ValueError:
                         logger.warning(f"Tool '{tool_item}' not found in instance registry, skipping")
                 else:
@@ -153,7 +146,7 @@ class AIAgent(Agent):
         # These are excluded from Pydantic model but stored on the instance
         object.__setattr__(self, 'instruction_file', instruction_file)
         object.__setattr__(self, 'input_key_map', input_key_map or {})
-        object.__setattr__(self, 'tool_registry', instance_registry)
+        object.__setattr__(self, 'skills_registry', skills_registry)
         object.__setattr__(self, 'context_window', context_window)
         object.__setattr__(self, 'max_output_tokens', max_output_tokens)
         object.__setattr__(self, 'enable_truncation', enable_truncation)

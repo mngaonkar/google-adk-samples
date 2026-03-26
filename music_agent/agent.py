@@ -1,11 +1,15 @@
-import logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from declarative_agent_sdk.logging_config import setup_logging, get_logger
+
+setup_logging(level="INFO")
+logger = get_logger(__name__)
 
 from declarative_agent_sdk.tool_registry import ToolRegistry
 from declarative_agent_sdk import AgentFactory
 import os
 from declarative_agent_sdk.utils import save_to_file
+from dotenv import load_dotenv
+
+load_dotenv()
 
 WORKSPACE_DIRECTORY = "workspace"
 
@@ -32,5 +36,5 @@ def music_agent(input: str) -> None:
     return
 
 if __name__ == "__main__":
-    test_input = "Generate a 2 min song from current political news as lyrics."
+    test_input = "Generate a 2 min song from current political news from internet as lyrics."
     music_agent(test_input)

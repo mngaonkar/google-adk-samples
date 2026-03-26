@@ -224,14 +224,14 @@ class AIAgent(Agent):
             new_message=content
         ):
             if event.content and event.content.parts:
-                if hasattr(event.content.parts[0], 'text'):
-                    logger.info(f"EVENT: {event.content.parts[0].text}")
-                elif hasattr(event.content.parts[0], 'function_call'):
-                    logger.info(f"EVENT: Function call - {event.content.parts[0].function_call}")
-                elif hasattr(event.content.parts[0], 'function_response'):
-                    logger.info(f"EVENT: Function response - {event.content.parts[0].function_response.name}")
+                if hasattr(event.content.parts[-1], 'text'):
+                    logger.info(f"EVENT: {event.content.parts[-1].text}")
+                elif hasattr(event.content.parts[-1], 'function_call'):
+                    logger.info(f"EVENT: Function call - {event.content.parts[-1].function_call}")
+                elif hasattr(event.content.parts[-1], 'function_response'):
+                    logger.info(f"EVENT: Function response - {event.content.parts[-1].function_response.name}")
                 else:
-                    logger.info(f"EVENT: Received content part with unrecognized format: {event.content.parts[0]}")
+                    logger.info(f"EVENT: Received content part with unrecognized format: {event.content.parts[-1]}")
 
             
             if event.is_final_response():

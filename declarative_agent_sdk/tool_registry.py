@@ -126,7 +126,7 @@ def register_common_tools():
     """Register commonly used tools in the ToolRegistry."""
     try:
         from google.adk.tools import google_search
-        ToolRegistry.register('google_search', google_search)
+        #ToolRegistry.register('google_search', google_search)
         logger.info("Registered google_search tool")
     except ImportError as e:
         logger.warning(f"Could not import google_search: {e}")

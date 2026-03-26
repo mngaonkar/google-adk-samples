@@ -118,6 +118,20 @@ class SkillRegistry:
         return cls._skills.get(name)
     
     @classmethod
+    def get_all_skills_description(cls) -> Dict[str, str]:
+        """
+        Get a dictionary of all registered skills and their descriptions.
+        
+        Returns:
+            Dictionary mapping skill names to their descriptions
+        Example:
+            descriptions = SkillRegistry.get_all_skills_description()
+            for skill, desc in descriptions.items():
+                print(f"{skill}: {desc}")
+        """
+        return {name: meta.get('description', '') for name, meta in cls._metadata.items()}
+    
+    @classmethod
     def get_metadata(cls, name: str) -> Dict[str, Any]:
         """
         Get metadata for a skill.

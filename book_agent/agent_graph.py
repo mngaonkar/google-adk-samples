@@ -12,6 +12,7 @@ from declarative_agent_sdk.skill_registry import SkillRegistry
 from toc_agent.agent import toc_agent
 from chapter_agent.agent import chapter_agent_parallel
 from collation_agent.agent import collation_agent
+from skills.toc.scripts.validate_yaml import validate_yaml
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -32,8 +33,6 @@ def route_after_toc(state: BookAgentState) -> Literal["chapter_agent_parallel", 
         return "toc_agent"
     try:
         content = read_file_content(toc_location)
-        # Get validate_yaml from ToolRegistry
-        validate_yaml = ToolRegistry.get('validate_yaml')
         if validate_yaml(content):
             logger.info("TOC YAML validated successfully, proceeding to chapter_agent_parallel")
             return "chapter_agent_parallel"

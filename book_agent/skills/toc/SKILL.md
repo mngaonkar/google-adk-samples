@@ -19,6 +19,7 @@ Create a comprehensive table of contents for a book based on a specific topic de
 1. Research the topic using tavily_search if needed to understand the scope
 2. Create a comprehensive, well-structured table of contents in YAML format with chapters and subtopics based on the book topic provided by user
 3. Verify the generated YAML content using validate_yaml tool to ensure it is syntactically correct and can be parsed without errors
+4. If valid YAML is generated, return the YAML content as the output. If there are any issues with the YAML structure, revise and correct it until it is valid.
 
 ## Output format
 Here is sample YAML output for book topic "Artificial Intelligence: A Comprehensive Guide":

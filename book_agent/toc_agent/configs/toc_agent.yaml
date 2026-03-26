@@ -4,8 +4,6 @@
 name: toc_agent
 description: An agent to create a table of contents for a book based on user provided topic.
 instruction_file: 
-tools:
-  - tavily_search
 skills:
   - toc
 output_key: toc_agent_response

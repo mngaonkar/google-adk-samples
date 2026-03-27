@@ -34,6 +34,7 @@ class SmartContextFilterPlugin(BasePlugin):
         get_updated_context_func: Callable[[], str]
     ):
         self.get_updated_context_func = get_updated_context_func
+        super().__init__(name="smart_context_filter")
 
     async def before_model_callback(
         self, *, callback_context: CallbackContext, llm_request: LlmRequest

@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from declarative_agent_sdk import AgentFactory, setup_logging
-from declarative_agent_sdk.logging_config import get_logger
+from declarative_agent_sdk.agent_logging import get_logger
 
 # Setup logging
 setup_logging(level="DEBUG")

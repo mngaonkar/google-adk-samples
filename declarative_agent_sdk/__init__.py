@@ -12,7 +12,7 @@ from declarative_agent_sdk.tool_registry import ToolRegistry
 from declarative_agent_sdk.skill_registry import SkillRegistry
 from declarative_agent_sdk.workflow_registry import WorkflowRegistry
 from declarative_agent_sdk.workflow_factory import WorkflowFactory, register_workflow_functions
-from declarative_agent_sdk.logging_config import setup_logging, get_logger, set_log_level
+from declarative_agent_sdk.agent_logging import setup_logging, get_logger, set_log_level
 from declarative_agent_sdk.token_utils import fit_to_context_window
 from declarative_agent_sdk import utils
 from declarative_agent_sdk import constants

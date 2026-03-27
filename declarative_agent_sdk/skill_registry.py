@@ -8,7 +8,7 @@ and their metadata. The actual callable functions are stored in ToolRegistry.
 import os
 import yaml
 from typing import Dict, List, Any, Optional
-from declarative_agent_sdk.logging_config import get_logger
+from declarative_agent_sdk.agent_logging import get_logger
 from declarative_agent_sdk.constants import SKILLS_DIRECTORY
 
 logger = get_logger(__name__)

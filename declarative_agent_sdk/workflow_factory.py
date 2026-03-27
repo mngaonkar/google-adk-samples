@@ -16,7 +16,7 @@ from typing import Any, Dict, Callable, Optional
 from pathlib import Path
 from langgraph.graph import StateGraph, START, END
 from declarative_agent_sdk.workflow_registry import WorkflowRegistry
-from declarative_agent_sdk.logging_config import get_logger
+from declarative_agent_sdk.agent_logging import get_logger
 
 logger = get_logger(__name__)
 

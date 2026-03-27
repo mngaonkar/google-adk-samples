@@ -8,7 +8,7 @@ configuration parameters.
 
 from typing import Any, Optional, Union
 from declarative_agent_sdk.constants import DEFAULT_MODEL
-from declarative_agent_sdk.logging_config import get_logger
+from declarative_agent_sdk.agent_logging import get_logger
 
 logger = get_logger(__name__)
 

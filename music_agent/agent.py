@@ -1,4 +1,4 @@
-from declarative_agent_sdk.logging_config import setup_logging, get_logger
+from declarative_agent_sdk.agent_logging import setup_logging, get_logger
 
 setup_logging(level="INFO")
 logger = get_logger(__name__)

@@ -13,7 +13,7 @@ from declarative_agent_sdk.ai_agent import AIAgent
 from declarative_agent_sdk.constants import DEFAULT_MODEL, SKILLS_DIRECTORY
 from declarative_agent_sdk.tool_registry import ToolRegistry
 from declarative_agent_sdk.model_factory import ModelFactory
-from declarative_agent_sdk.logging_config import get_logger
+from declarative_agent_sdk.agent_logging import get_logger
 
 logger = get_logger(__name__)
 

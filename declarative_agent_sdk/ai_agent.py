@@ -5,7 +5,7 @@ from google.adk.agents.base_agent import BaseAgent
 from google.genai import types
 from declarative_agent_sdk.utils import read_from_file
 from declarative_agent_sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY
-from declarative_agent_sdk.logging_config import get_logger
+from declarative_agent_sdk.agent_logging import get_logger
 from declarative_agent_sdk.token_utils import fit_to_context_window
 from declarative_agent_sdk.tool_registry import ToolRegistry, register_common_tools
 import asyncio

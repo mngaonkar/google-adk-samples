@@ -3,7 +3,7 @@ import importlib.util
 import inspect
 from typing import Any, Dict, List, Callable
 from pathlib import Path
-from declarative_agent_sdk.logging_config import get_logger
+from declarative_agent_sdk.agent_logging import get_logger
 from dotenv import load_dotenv
 
 load_dotenv()

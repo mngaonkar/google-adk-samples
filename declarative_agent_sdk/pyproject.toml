@@ -81,7 +81,7 @@ Repository = "https://github.com/mngaonkar/google-adk-samples"
 # Package discovery configuration
 # The package is called "declarative_agent_sdk" and source files are in the current directory
 [tool.setuptools]
-packages = ["declarative_agent_sdk"]
+packages = ["declarative_agent_sdk", "declarative_agent_sdk.plugins", "declarative_agent_sdk.builtin_tools"]
 
 [tool.setuptools.package-dir]
 declarative_agent_sdk = "."

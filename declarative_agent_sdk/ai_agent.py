@@ -20,7 +20,7 @@ import uuid
 import os
 from typing import Optional, Any, Union, List, Callable
 from pydantic import Field
-from declarative_agent_sdk.plugins.context_updater import ContextUpdater
+from declarative_agent_sdk.plugins.context_updater import get_updated_context
 
 logger = get_logger(__name__)
                     
@@ -33,8 +33,7 @@ async def dynamic_context_callback(callback_context: CallbackContext, llm_reques
     agent_name = callback_context.agent_name
     logger.debug(f"Agent '{agent_name}' is making a model call.")
     
-    context_updater = ContextUpdater(agent_name)
-    modified_context = context_updater.get_updated_context() or "No additional context"
+    modified_context = get_updated_context(agent_name) or "No additional context"
     llm_request.config.system_instruction = modified_context
     logger.debug(f"Updated system instruction for agent '{agent_name}': {llm_request.config.system_instruction}")
 

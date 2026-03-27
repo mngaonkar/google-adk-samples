@@ -20,7 +20,7 @@ import uuid
 import os
 from typing import Optional, Any, Union, List, Callable
 from pydantic import Field
-from declarative_agent_sdk.plugins.context_updater import get_updated_context
+import declarative_agent_sdk.plugins.context_updater as context_updater
 
 logger = get_logger(__name__)
                     
@@ -33,7 +33,7 @@ async def dynamic_context_callback(callback_context: CallbackContext, llm_reques
     agent_name = callback_context.agent_name
     logger.debug(f"Agent '{agent_name}' is making a model call.")
     
-    modified_context = get_updated_context(agent_name) or "No additional context"
+    modified_context = context_updater.get_updated_context(agent_name) or "No additional context"
     llm_request.config.system_instruction = modified_context
     logger.debug(f"Updated system instruction for agent '{agent_name}': {llm_request.config.system_instruction}")
 
@@ -48,6 +48,8 @@ class AIAgent(Agent):
     enable_truncation: bool = Field(default=False, exclude=True)
     truncate_strategy: str = Field(default="end", exclude=True)
     safety_margin: int = Field(default=100, exclude=True)
+    skill_directory: str = Field(default=SKILLS_DIRECTORY, exclude=True)
+    skills : List[str] = Field(default_factory=list, exclude=True)
    
     def __init__(self, 
                  name: str, 
@@ -111,19 +113,6 @@ class AIAgent(Agent):
         if skills:
             skills_registry.register_multiple_from_directory(skill_directory=skills_directory, skills_list=skills)
 
-        # TODO: load instructions from the first skill.
-        if skills:
-            skill_dir = os.path.join(skills_directory, skills[0])
-            if not os.path.exists(skill_dir):
-                raise FileNotFoundError(f"Skill directory not found: {skill_dir}")
-                
-            # Append SKILL.md content to instruction text
-            skill_md_path = os.path.join(skill_dir, 'SKILL.md')
-            if os.path.exists(skill_md_path):
-                skill_instruction = read_from_file(skill_md_path)
-                instruction_text += f"\n\n# Skill: {os.path.basename(skill_dir)}\n{skill_instruction}"
-                logger.info(f"Appended SKILL.md from {skill_dir}")
-
         # Resolve tool names from YAML to actual tool objects
         # Tools can be specified as strings (tool names) or tool objects
         resolved_tools = skills_registry._get_tool_registry().get_all()  # Start with all tools from skills
@@ -150,11 +139,6 @@ class AIAgent(Agent):
             # disable=True,          # Optional: fully disable auto-loop if needed
         )
 
-        # Validate that we have instruction text
-        # Either from instruction_file or from SKILL.md files
-        if not instruction_text:
-            raise ValueError("Agent does not have any instruction text. Please provide an instruction_file or ensure SKILL.md files are included in skills directories.")
-        
         # Initialize parent Agent class with all configuration
         super().__init__(
             model=model,
@@ -180,6 +164,8 @@ class AIAgent(Agent):
         object.__setattr__(self, 'enable_truncation', enable_truncation)
         object.__setattr__(self, 'truncate_strategy', truncate_strategy)
         object.__setattr__(self, 'safety_margin', safety_margin)
+        object.__setattr__(self, 'skill_directory', skills_directory)
+        object.__setattr__(self, 'skills', skills or [])
 
     async def run(self, 
                   input_text: str, 

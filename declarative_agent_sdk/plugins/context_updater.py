@@ -1,3 +1,10 @@
+from declarative_agent_sdk.constants import SKILLS_DIRECTORY
+from declarative_agent_sdk.utils import read_from_file
+from declarative_agent_sdk.agent_logging import get_logger
+import os
+
+logger = get_logger(__name__)
+
 class ContextUpdater():
     """Utility class to fetch and update context for agents. 
     This is a placeholder implementation and should be extended with actual logic to retrieve relevant context based on the agent's state or environment."""
@@ -14,10 +21,10 @@ class ContextUpdater():
         Returns:
             A string representing the current context for the agent.
         """
-        context_text = self.get_current_context()
+        context_text = self.get_default_context()
         return context_text
     
-    def get_current_context(self) -> str:
+    def get_default_context(self) -> str:
         """Fetch the current context for the agent. 
         This is a placeholder implementation and should be replaced with actual logic to retrieve relevant context based on the agent's state or environment.
         Args:
@@ -25,9 +32,30 @@ class ContextUpdater():
         Returns:
             A string representing the current context for the agent.
         """
-        context_text = str(self.agent.instruction) or f"dummy context for agent {self.agent_name}"
-        return context_text
 
+        # TODO: load instructions from all SKILL.md files of the agent's skills and append to context
+        skills_directory = self.agent.skill_directory or SKILLS_DIRECTORY
+        instruction_text = ""
+        
+        if self.agent.skills and len(self.agent.skills) > 0:
+            for skill in self.agent.skills:
+                skill_dir = os.path.join(skills_directory, skill)
+                if not os.path.exists(skill_dir):
+                    logger.warning(f"Skill directory not found for skill '{skill}': {skill_dir}")
+                    continue
+                
+                # Append SKILL.md content to instruction text
+                skill_md_path = os.path.join(skill_dir, 'SKILL.md')
+                if os.path.exists(skill_md_path):
+                    skill_instruction = read_from_file(skill_md_path)
+                    instruction_text += f"\n\n# Skill: {skill}\n{skill_instruction}"
+                    logger.info(f"Appended SKILL.md from {skill_dir}")
+                else:
+                    logger.warning(f"SKILL.md not found for skill '{skill}' in directory: {skill_dir}")
+        else:
+            logger.info(f"No skills specified for agent '{self.agent_name}', skipping skill context aggregation.")
+    
+        return instruction_text        
 
 # Standalone function for backward compatibility and convenience
 def get_updated_context(agent_name: str) -> str:

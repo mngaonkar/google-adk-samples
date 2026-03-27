@@ -1,14 +1,11 @@
 from google.adk.agents.llm_agent import Agent
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
-from google.adk.agents.base_agent import BaseAgent
+from google.adk.tools import BaseTool, ToolContext
 from google.genai import types
-from google.genai.types import Content, Part
-from google.adk.agents.base_agent import BaseAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.models.llm_request import LlmRequest
 from google.adk.models.llm_response import LlmResponse
-from google.adk.plugins.base_plugin import BasePlugin
 
 from declarative_agent_sdk.utils import read_from_file
 from declarative_agent_sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY
@@ -18,12 +15,33 @@ from declarative_agent_sdk.tool_registry import ToolRegistry, register_common_to
 import asyncio
 import uuid
 import os
-from typing import Optional, Any, Union, List, Callable
+from typing import Optional, Any, Union, List, Callable, Dict
 from pydantic import Field
 import declarative_agent_sdk.plugins.context_updater as context_updater
 
 logger = get_logger(__name__)
-                    
+
+async def dynamic_tool_callback(
+    tool: BaseTool, args: Dict[str, Any], tool_context: ToolContext
+) -> Optional[Dict]:
+    """
+    Example callback function that runs before each tool call.
+    This can be used to modify tool arguments, inject additional information, or log tool usage.
+    """
+    logger.debug(f"Running dynamic_tool_callback for tool '{tool.name}' with args: {args}")
+    
+    # Example: Inject agent name into tool arguments if not already present
+    if 'agent_name' not in args:
+        args['agent_name'] = tool_context.agent_name
+        logger.debug(f"Injected agent_name into tool args: {args['agent_name']}")
+    
+    # Wait for user confirmation before executing potentially dangerous tool
+    user_input = input(f"Tool '{tool.name}' is about to be called with args: {args}. Do you want to proceed? (y/n): ")
+    if user_input.lower() != 'y':
+        logger.info(f"Tool '{tool.name}' call aborted by user.")
+        return None  # Returning None can signal to skip the tool call
+
+
 async def dynamic_context_callback(callback_context: CallbackContext, llm_request: LlmRequest) -> Optional[LlmResponse]:
     """
     Example callback function that dynamically updates system context before each model call.
@@ -56,6 +74,7 @@ class AIAgent(Agent):
                  instruction_file: str,
                  description: str = '',
                  tools: list | None = None,
+                 tools_approval_required: bool = True,
                  skills_directory: str = SKILLS_DIRECTORY, 
                  skills: List[str] | None = None,
                  input_key_map: dict[str, str] | None = None,
@@ -86,6 +105,7 @@ class AIAgent(Agent):
             max_output_tokens: Tokens reserved for output generation
             enable_truncation: If True, automatically truncate inputs exceeding context window
             truncate_strategy: How to truncate ("start", "end", or "middle")
+            tools_approval_required: If True, requires user approval before executing certain tools
             safety_margin: Extra tokens to reserve for safety (default: 100)
         
         Workflow:
@@ -133,7 +153,7 @@ class AIAgent(Agent):
                 else:
                     # Already a tool object
                     resolved_tools.append(tool_item)
-                    
+
         logger.info(f"resolved tools : {resolved_tools}")
         
         # Define automatic function calling config
@@ -144,6 +164,7 @@ class AIAgent(Agent):
         )
 
         # Initialize parent Agent class with all configuration
+        logger.debug(f"Tools approval required: {tools_approval_required}")
         super().__init__(
             model=model,
             name=name,
@@ -155,7 +176,8 @@ class AIAgent(Agent):
                 # Add other Gemini configs if needed: temperature=0.7, max_output_tokens=2048, etc.
             ),
             output_key=output_key,
-            before_model_callback=dynamic_context_callback
+            before_model_callback=dynamic_context_callback,
+            before_tool_callback=dynamic_tool_callback if tools_approval_required else None
         )
         
         # Set custom fields AFTER parent initialization

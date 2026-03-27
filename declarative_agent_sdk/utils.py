@@ -40,6 +40,7 @@ def remove_think_content(content: str) -> str:
     if len(cleaned_content) > 1:
         cleaned_content = cleaned_content[1]
     else:
-        cleaned_content = ''
+        cleaned_content = cleaned_content[0]
+
 
     return cleaned_content.strip()

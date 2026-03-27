@@ -134,6 +134,7 @@ class AgentFactory:
         skills_directory = config.get('skills_directory', SKILLS_DIRECTORY)
         provider = config.get('provider', None)
         endpoint_config = config.get('endpoint', None)
+        tools_approval_required = config.get('tools_approval_required', True)
         
         # Extract endpoint URL if endpoint configuration exists
         endpoint_url = None
@@ -193,6 +194,7 @@ class AgentFactory:
             description=description,
             instruction_file=instruction_file if instruction_file is not None else '',
             tools=tools,
+            tools_approval_required=tools_approval_required,
             output_key=output_key,
             model=model,
             skills_directory=skills_directory,

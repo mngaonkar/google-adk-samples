@@ -4,7 +4,8 @@ name: wazy_agent
 description: An agent to create a travel itinerary based on user preferences.
 tools:
   - tavily_search
-tools_approval_required: false
+  - exec_command
+tools_approval_required: true
 skills_directory: /Users/mahadevgaonkar/code/google-adk-samples/skills
 skills:
   - wazy

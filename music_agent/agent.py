@@ -3,7 +3,7 @@ from declarative_agent_sdk.agent_logging import setup_logging, get_logger
 setup_logging(level="INFO")
 logger = get_logger(__name__)
 
-from declarative_agent_sdk import AgentFactory
+from declarative_agent_sdk import AgentFactory, AgentRegistry
 import os
 from declarative_agent_sdk.utils import save_to_file
 from dotenv import load_dotenv
@@ -14,7 +14,8 @@ WORKSPACE_DIRECTORY = "workspace"
 
 def music_agent(input: str) -> None:
     agent = AgentFactory.from_yaml_file('configs/music_agent.yaml')
-    logger.info("Music agent initialized.")
+    AgentRegistry.register(agent, category='music')
+    logger.info("Music agent initialized and registered.")
 
     result = agent.run_sync(input)
     logger.debug(f"Music agent generated response: {result}")

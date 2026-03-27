@@ -7,6 +7,7 @@ from google.genai.types import Content, Part
 from google.adk.agents.base_agent import BaseAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.models.llm_request import LlmRequest
+from google.adk.models.llm_response import LlmResponse
 from google.adk.plugins.base_plugin import BasePlugin
 
 from declarative_agent_sdk.utils import read_from_file
@@ -19,43 +20,24 @@ import uuid
 import os
 from typing import Optional, Any, Union, List, Callable
 from pydantic import Field
-from declarative_agent_sdk.plugins.context_updater import get_updated_context
+from declarative_agent_sdk.plugins.context_updater import ContextUpdater
 
 logger = get_logger(__name__)
-
-class SmartContextFilterPlugin(BasePlugin):
-    """
-    Custom context filter that intelligently keeps important events
-    while reducing context bloat.
-    """
-    
-    def __init__(
-        self,
-        get_updated_context_func: Callable[[], str]
-    ):
-        self.get_updated_context_func = get_updated_context_func
-        super().__init__(name="smart_context_filter")
-
-    async def before_model_callback(
-        self, *, callback_context: CallbackContext, llm_request: LlmRequest
-    ) -> None:
-        """Count LLM requests."""
-        if not self.get_updated_context_func:
-            logger.warning("No get_updated_context_func provided, skipping context update")
-            return
-        
-        updated_contents = []
-        contents = llm_request.contents
-
-        for content in contents:
-            if content.role != "system":
-                updated_contents.append(content)
-            else:
-                new_system_content = self.get_updated_context_func()
-                updated_contents.append(new_system_content)
-        
-        llm_request.contents = updated_contents
                     
+async def dynamic_context_callback(callback_context: CallbackContext, llm_request: LlmRequest) -> Optional[LlmResponse]:
+    """
+    Example callback function that dynamically updates system context before each model call.
+    This can be used to inject relevant information, filter out unnecessary context, or manage token limits.
+    """
+    logger.debug("Running dynamic_context_callback")
+    agent_name = callback_context.agent_name
+    logger.debug(f"Agent '{agent_name}' is making a model call.")
+    
+    context_updater = ContextUpdater(agent_name)
+    modified_context = context_updater.get_updated_context() or "No additional context"
+    llm_request.config.system_instruction = modified_context
+    logger.debug(f"Updated system instruction for agent '{agent_name}': {llm_request.config.system_instruction}")
+
 
 class AIAgent(Agent):
     """Extended Agent with convenient initialization and run methods."""
@@ -185,7 +167,8 @@ class AIAgent(Agent):
                 automatic_function_calling=afc_config,
                 # Add other Gemini configs if needed: temperature=0.7, max_output_tokens=2048, etc.
             ),
-            output_key=output_key
+            output_key=output_key,
+            before_model_callback=dynamic_context_callback
         )
         
         # Set custom fields AFTER parent initialization
@@ -233,7 +216,7 @@ class AIAgent(Agent):
             agent=self,
             app_name=app_name,
             session_service=session_service,
-            plugins=[SmartContextFilterPlugin(get_updated_context_func=get_updated_context)]
+            # plugins=[SmartContextFilterPlugin(get_updated_context_func=get_updated_context)]
         )
         
         # Apply token truncation if configured

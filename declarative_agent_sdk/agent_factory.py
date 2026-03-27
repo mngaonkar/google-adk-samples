@@ -19,7 +19,24 @@ logger = get_logger(__name__)
 
 
 class AgentFactory:
-    """Factory class to create AIAgent instances from YAML configuration."""
+    """
+    Factory class to create AIAgent instances from YAML configuration.
+    
+    The factory follows the Factory Pattern - it creates agents but doesn't
+    track them. If you need to manage created agents globally, use AgentRegistry:
+    
+    Example with AgentRegistry:
+        from declarative_agent_sdk import AgentFactory, AgentRegistry
+        
+        # Create agent
+        agent = AgentFactory.from_yaml_file('config.yaml')
+        
+        # Register for global tracking
+        AgentRegistry.register(agent, category='workflow')
+        
+        # Retrieve later
+        agent = AgentRegistry.get('my_agent')
+    """
     
     @staticmethod
     def from_yaml_file(yaml_file_path: str) -> AIAgent:

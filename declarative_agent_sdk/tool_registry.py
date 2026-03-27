@@ -102,7 +102,7 @@ class ToolRegistry:
                 # Register only user-defined functions (not imported ones)
                 if (inspect.isfunction(obj) and 
                     obj.__module__ == module.__name__ and 
-                    not name.startswith('_')):
+                    not name.startswith('_')) and name not in ['main']:
                     
                     tool_name = f"{prefix}{name}" if prefix else name
                     cls.register(tool_name, obj)

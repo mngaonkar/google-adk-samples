@@ -278,19 +278,6 @@ def generate_music(
         
     Returns:
         List of saved file paths (absolute paths)
-        
-    Raises:
-        ValueError: If API key is missing or invalid input
-        requests.exceptions.RequestException: If API request fails
-        
-    Examples:
-        >>> files = generate_music(
-        ...     prompt="upbeat pop song",
-        ...     duration=30,
-        ...     output="my_song.mp3"
-        ... )
-        >>> print(files)
-        ['/path/to/my_song.mp3']
     """
     # Initialize generator
     generator = ACEMusicGenerator(api_key=api_key, base_url=base_url)

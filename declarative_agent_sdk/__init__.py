@@ -17,6 +17,7 @@ from declarative_agent_sdk.token_utils import fit_to_context_window
 from declarative_agent_sdk import utils
 from declarative_agent_sdk import constants
 from declarative_agent_sdk import builtin_tools
+from declarative_agent_sdk.plugins.context_updater import get_updated_context
 
 __all__ = [
     '__version__',
@@ -35,4 +36,5 @@ __all__ = [
     'utils',
     'constants',
     'builtin_tools',
+    'get_updated_context',
 ]

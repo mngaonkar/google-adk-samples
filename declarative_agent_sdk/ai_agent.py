@@ -116,21 +116,25 @@ class AIAgent(Agent):
         # Resolve tool names from YAML to actual tool objects
         # Tools can be specified as strings (tool names) or tool objects
         resolved_tools = skills_registry._get_tool_registry().get_all()  # Start with all tools from skills
-        register_common_tools()
-        resolved_tools.extend(ToolRegistry.get_all()) # Append global tools
-        logger.info(f"resolved tools : {resolved_tools}")
+        # register_common_tools()
+        # resolved_tools.extend(ToolRegistry.get_all()) # Append global tools
+
+        # Register built-in tools from declarative_agent_sdk's builtin directory
+        ToolRegistry.register_built_in_tools()
 
         if tools:
             for tool_item in tools:
                 if isinstance(tool_item, str):
                     # Tool name - resolve from instance registry
                     try:
-                        resolved_tools.append(skills_registry._get_tool_registry().get(tool_item))
+                        resolved_tools.append(ToolRegistry.get(tool_item))
                     except ValueError:
                         logger.warning(f"Tool '{tool_item}' not found in instance registry, skipping")
                 else:
                     # Already a tool object
                     resolved_tools.append(tool_item)
+                    
+        logger.info(f"resolved tools : {resolved_tools}")
         
         # Define automatic function calling config
         # Controls how many rounds of tool calls the agent can make

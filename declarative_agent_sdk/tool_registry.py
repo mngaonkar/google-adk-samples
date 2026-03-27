@@ -43,6 +43,22 @@ class ToolRegistry:
         return list(cls._tools.keys())
     
     @classmethod
+    def register_built_in_tools(cls):
+        """Register built-in tools from builtin directory."""
+        builtin_dir = Path(__file__).parent / 'builtin_tools'
+        if not builtin_dir.exists():
+            logger.warning(f"Built-in tools directory does not exist: {builtin_dir}")
+            return
+        
+        registered_count = 0
+        for file in builtin_dir.glob('*.py'):
+            if file.name.startswith('__'):
+                continue
+            registered_count += cls._register_functions_from_file(str(file), prefix='')
+        
+        logger.info(f"Registered {registered_count} built-in tools from {builtin_dir}")
+
+    @classmethod
     def register_from_scripts_folder(cls, scripts_dir: str, prefix: str = '') -> int:
         """
         Auto-discover and register all functions from Python files in a scripts directory.

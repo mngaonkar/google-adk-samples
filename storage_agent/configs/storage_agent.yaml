@@ -1,15 +1,15 @@
-# Muisc agent configuration file
+# Storage agent configuration file
 
-name: wazy_agent
-description: An agent to create a travel itinerary based on user preferences.
+name: storage_agent
+description: An agent to profile storage on the computer
 tools:
   - tavily_search
   - exec_command
 tools_approval_required: true
 skills_directory: /Users/mahadevgaonkar/code/google-adk-samples/skills
 skills:
-  - wazy
-output_key: wazy_agent_response
+  - storage
+output_key: storage_agent_response
 provider: vllm
 model: Qwen/Qwen3-4B-Thinking-2507-FP8
 endpoint:

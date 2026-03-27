@@ -1,4 +1,4 @@
-# Muisc agent configuration file
+# Wayz agent configuration file
 
 name: wazy_agent
 description: An agent to create a travel itinerary based on user preferences.

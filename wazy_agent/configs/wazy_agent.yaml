@@ -1,0 +1,16 @@
+# Muisc agent configuration file
+
+name: wazy_agent
+description: An agent to create a travel itinerary based on user preferences.
+tools:
+  - tavily_search
+skills_directory: /Users/mahadevgaonkar/code/google-adk-samples/skills
+skills:
+  - wazy
+output_key: wazy_agent_response
+provider: vllm
+model: Qwen/Qwen3-4B-Thinking-2507-FP8
+endpoint:
+  url: http://mahadev-ms7d28:8000/v1
+  max_tokens: 4096
+  temperature: 0.8

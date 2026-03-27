@@ -16,6 +16,7 @@ from declarative_agent_sdk.agent_logging import setup_logging, get_logger, set_l
 from declarative_agent_sdk.token_utils import fit_to_context_window
 from declarative_agent_sdk import utils
 from declarative_agent_sdk import constants
+from declarative_agent_sdk import builtin_tools
 
 __all__ = [
     '__version__',
@@ -33,4 +34,5 @@ __all__ = [
     'fit_to_context_window',
     'utils',
     'constants',
+    'builtin_tools',
 ]

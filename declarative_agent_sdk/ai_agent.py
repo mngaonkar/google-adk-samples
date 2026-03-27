@@ -3,6 +3,12 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.adk.agents.base_agent import BaseAgent
 from google.genai import types
+from google.genai.types import Content, Part
+from google.adk.agents.base_agent import BaseAgent
+from google.adk.agents.callback_context import CallbackContext
+from google.adk.models.llm_request import LlmRequest
+from google.adk.plugins.base_plugin import BasePlugin
+
 from declarative_agent_sdk.utils import read_from_file
 from declarative_agent_sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY
 from declarative_agent_sdk.agent_logging import get_logger
@@ -11,10 +17,44 @@ from declarative_agent_sdk.tool_registry import ToolRegistry, register_common_to
 import asyncio
 import uuid
 import os
-from typing import Optional, Any, Union, List
+from typing import Optional, Any, Union, List, Callable
 from pydantic import Field
+from declarative_agent_sdk.plugins.context_updater import get_updated_context
 
 logger = get_logger(__name__)
+
+class SmartContextFilterPlugin(BasePlugin):
+    """
+    Custom context filter that intelligently keeps important events
+    while reducing context bloat.
+    """
+    
+    def __init__(
+        self,
+        get_updated_context_func: Callable[[], str]
+    ):
+        self.get_updated_context_func = get_updated_context_func
+
+    async def before_model_callback(
+        self, *, callback_context: CallbackContext, llm_request: LlmRequest
+    ) -> None:
+        """Count LLM requests."""
+        if not self.get_updated_context_func:
+            logger.warning("No get_updated_context_func provided, skipping context update")
+            return
+        
+        updated_contents = []
+        contents = llm_request.contents
+
+        for content in contents:
+            if content.role != "system":
+                updated_contents.append(content)
+            else:
+                new_system_content = self.get_updated_context_func()
+                updated_contents.append(new_system_content)
+        
+        llm_request.contents = updated_contents
+                    
 
 class AIAgent(Agent):
     """Extended Agent with convenient initialization and run methods."""
@@ -191,7 +231,8 @@ class AIAgent(Agent):
         runner = Runner(
             agent=self,
             app_name=app_name,
-            session_service=session_service
+            session_service=session_service,
+            plugins=[SmartContextFilterPlugin(get_updated_context_func=get_updated_context)]
         )
         
         # Apply token truncation if configured

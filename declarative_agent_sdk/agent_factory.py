@@ -10,7 +10,7 @@ import yaml
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 from declarative_agent_sdk.ai_agent import AIAgent
-from declarative_agent_sdk.constants import DEFAULT_MODEL, SKILLS_DIRECTORY
+from declarative_agent_sdk.constants import DEFAULT_MODEL, SKILLS_DIRECTORY, WORKSPACE_DIRECTORY
 from declarative_agent_sdk.tool_registry import ToolRegistry
 from declarative_agent_sdk.model_factory import ModelFactory
 from declarative_agent_sdk.agent_logging import get_logger
@@ -132,6 +132,7 @@ class AgentFactory:
         model_name = config.get('model', DEFAULT_MODEL)
         skills = config.get('skills', None)
         skills_directory = config.get('skills_directory', SKILLS_DIRECTORY)
+        workspace_directory = config.get('workspace_directory', WORKSPACE_DIRECTORY)
         provider = config.get('provider', None)
         endpoint_config = config.get('endpoint', None)
         tools_approval_required = config.get('tools_approval_required', True)
@@ -203,7 +204,8 @@ class AgentFactory:
             max_output_tokens=max_tokens,
             enable_truncation=enable_truncation,
             truncate_strategy=truncate_strategy,
-            safety_margin=safety_margin
+            safety_margin=safety_margin,
+            workspace_directory=workspace_directory
         )
         
         return agent

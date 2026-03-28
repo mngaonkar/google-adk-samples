@@ -8,7 +8,7 @@ from google.adk.models.llm_request import LlmRequest
 from google.adk.models.llm_response import LlmResponse
 
 from declarative_agent_sdk.utils import read_from_file
-from declarative_agent_sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY
+from declarative_agent_sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY, WORKSPACE_DIRECTORY
 from declarative_agent_sdk.agent_logging import get_logger
 from declarative_agent_sdk.token_utils import fit_to_context_window
 from declarative_agent_sdk.tool_registry import ToolRegistry, register_common_tools
@@ -67,6 +67,7 @@ class AIAgent(Agent):
     truncate_strategy: str = Field(default="end", exclude=True)
     safety_margin: int = Field(default=100, exclude=True)
     skill_directory: str = Field(default=SKILLS_DIRECTORY, exclude=True)
+    workspace_directory: str = Field(default=WORKSPACE_DIRECTORY, exclude=True)
     skills : List[str] = Field(default_factory=list, exclude=True)
    
     def __init__(self, 
@@ -76,6 +77,7 @@ class AIAgent(Agent):
                  tools: list | None = None,
                  tools_approval_required: bool = True,
                  skills_directory: str = SKILLS_DIRECTORY, 
+                 workspace_directory: str = WORKSPACE_DIRECTORY,
                  skills: List[str] | None = None,
                  input_key_map: dict[str, str] | None = None,
                  output_key: str | None = None,
@@ -193,7 +195,16 @@ class AIAgent(Agent):
         object.__setattr__(self, 'truncate_strategy', truncate_strategy)
         object.__setattr__(self, 'safety_margin', safety_margin)
         object.__setattr__(self, 'skill_directory', skills_directory)
+        object.__setattr__(self, 'workspace_directory', workspace_directory)
         object.__setattr__(self, 'skills', skills or [])
+
+        # Create workspace directory
+        try:
+            if not os.path.exists(workspace_directory):
+                os.makedirs(workspace_directory)
+        except Exception as e:
+            logger.error(f"Failed to create output directory {workspace_directory}: {e}")
+            raise
 
     async def run(self, 
                   input_text: str, 

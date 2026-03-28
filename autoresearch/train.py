@@ -17,8 +17,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# MLX uses built-in optimized attention - no Flash Attention kernel needed
-# For MLX: use mx.fast.scaled_dot_product_attention() or manual implementation
+from kernels import get_kernel
+cap = torch.cuda.get_device_capability()
+# varunneal's FA3 is Hopper only, use kernels-community on non-Hopper GPUs
+repo = "varunneal/flash-attention-3" if cap == (9, 0) else "kernels-community/flash-attn3"
+fa3 = get_kernel(repo).flash_attn_interface
 
 from prepare import MAX_SEQ_LEN, TIME_BUDGET, Tokenizer, make_dataloader, evaluate_bpb
 
@@ -87,9 +90,7 @@ class CausalSelfAttention(nn.Module):
         q, k = apply_rotary_emb(q, cos, sin), apply_rotary_emb(k, cos, sin)
         q, k = norm(q), norm(k)
 
-        # Use PyTorch's scaled_dot_product_attention (optimized, supports Flash Attention on compatible hardware)
-        # Note: window_size parameter not directly supported, using full causal attention
-        y = F.scaled_dot_product_attention(q, k, v, is_causal=True)
+        y = fa3.flash_attn_func(q, k, v, causal=True, window_size=window_size)
         y = y.contiguous().view(B, T, -1)
         y = self.c_proj(y)
         return y
@@ -429,7 +430,7 @@ class MuonAdamW(torch.optim.Optimizer):
 # ---------------------------------------------------------------------------
 
 # Model architecture
-ASPECT_RATIO = 48       # model_dim = depth * ASPECT_RATIO (reduced for smaller model)
+ASPECT_RATIO = 64       # model_dim = depth * ASPECT_RATIO
 HEAD_DIM = 128          # target head dimension for attention
 WINDOW_PATTERN = "SSSL" # sliding window pattern: L=full, S=half context
 
@@ -446,8 +447,8 @@ WARMDOWN_RATIO = 0.5    # fraction of time budget for LR warmdown
 FINAL_LR_FRAC = 0.0     # final LR as fraction of initial
 
 # Model size
-DEPTH = 4               # number of transformer layers (reduced for smaller model)
-DEVICE_BATCH_SIZE = 64  # per-device batch size (reduced for smaller GPU/MPS memory)
+DEPTH = 8               # number of transformer layers
+DEVICE_BATCH_SIZE = 128  # per-device batch size (reduce if OOM)
 
 # ---------------------------------------------------------------------------
 # Setup: tokenizer, model, optimizer, dataloader
@@ -455,10 +456,10 @@ DEVICE_BATCH_SIZE = 64  # per-device batch size (reduced for smaller GPU/MPS mem
 
 t_start = time.time()
 torch.manual_seed(42)
-torch.mps.manual_seed(42)
+torch.cuda.manual_seed(42)
 torch.set_float32_matmul_precision("high")
-device = torch.device("mps")
-autocast_ctx = torch.amp.autocast(device_type="mps", dtype=torch.bfloat16)
+device = torch.device("cuda")
+autocast_ctx = torch.amp.autocast(device_type="cuda", dtype=torch.bfloat16)
 H100_BF16_PEAK_FLOPS = 989.5e12
 
 tokenizer = Tokenizer.from_directory()
@@ -478,7 +479,7 @@ def build_model_config(depth):
 config = build_model_config(DEPTH)
 print(f"Model config: {asdict(config)}")
 
-with torch.device("mps"):
+with torch.device("meta"):
     model = GPT(config)
 model.to_empty(device=device)
 model.init_weights()
@@ -540,7 +541,7 @@ total_training_time = 0
 step = 0
 
 while True:
-    torch.mps.synchronize()
+    torch.cuda.synchronize()
     t0 = time.time()
     for micro_step in range(grad_accum_steps):
         with autocast_ctx:
@@ -570,7 +571,7 @@ while True:
         print("FAIL")
         exit(1)
 
-    torch.mps.synchronize()
+    torch.cuda.synchronize()
     t1 = time.time()
     dt = t1 - t0
 
@@ -615,7 +616,7 @@ with autocast_ctx:
 t_end = time.time()
 startup_time = t_start_training - t_start
 steady_state_mfu = 100 * num_flops_per_token * TOTAL_BATCH_SIZE * (step - 10) / total_training_time / H100_BF16_PEAK_FLOPS if total_training_time > 0 else 0
-peak_vram_mb = torch.mps.driver_allocated_memory() / 1024 / 1024
+peak_vram_mb = torch.cuda.max_memory_allocated() / 1024 / 1024
 
 print("---")
 print(f"val_bpb:          {val_bpb:.6f}")

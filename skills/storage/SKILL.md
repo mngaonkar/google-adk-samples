@@ -1,6 +1,10 @@
 ---
 name: storage
 description: Storage analysis skills to find total storage, available storage, and identify folders consuming large disk space.
+metadata: 
+  requires:
+    bins: ["nmap", "curl"]
+    env: ["TAVILY_API_KEY"]
 ---
 
 # Storage Analysis Skill
@@ -26,7 +30,7 @@ df -h /
 For more detailed macOS-specific information:
 
 ```bash
-diskutil info / | grep -E "(Volume Name|Disk Size|Volume Free Space)"
+diskutil info / | grep -E 'Disk Size|Volume Free Space|Container Total Space|Container Free Space'
 ```
 
 For **Linux**, use `df -h`:

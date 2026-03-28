@@ -1,4 +1,5 @@
 from declarative_agent_sdk.agent_logging import setup_logging, get_logger
+from declarative_agent_sdk.constants import WORKSPACE_DIRECTORY
 
 setup_logging(level="INFO")
 logger = get_logger(__name__)
@@ -12,8 +13,6 @@ from rich.markdown import Markdown
 
 load_dotenv()
 
-WORKSPACE_DIRECTORY = "workspace"
-
 def storage_agent(input: str) -> None:
     agent = AgentFactory.from_yaml_file('configs/storage_agent.yaml')
     AgentRegistry.register(agent, category='storage')
@@ -21,13 +20,6 @@ def storage_agent(input: str) -> None:
 
     result = agent.run_sync(input)
     logger.debug(f"Storage agent generated response: {result}")
-
-    try:
-        if not os.path.exists(WORKSPACE_DIRECTORY):
-            os.makedirs(WORKSPACE_DIRECTORY)
-    except Exception as e:
-        logger.error(f"Failed to create output directory {WORKSPACE_DIRECTORY}: {e}")
-        raise
 
     agent_output_file = os.path.join(WORKSPACE_DIRECTORY, agent.name)
 

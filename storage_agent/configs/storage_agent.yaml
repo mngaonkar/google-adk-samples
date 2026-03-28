@@ -4,6 +4,7 @@ name: storage_agent
 description: An agent to profile storage on the computer
 tools_approval_required: true
 skills_directory: /Users/mahadevgaonkar/code/google-adk-samples/skills
+workspace_directory: /Users/mahadevgaonkar/code/google-adk-samples/storage_agent/workspace
 skills:
   - storage
 output_key: storage_agent_response

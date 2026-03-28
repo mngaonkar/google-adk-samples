@@ -17,6 +17,7 @@ from agent_state import BookAgentState
 from declarative_agent_sdk.ai_agent import AIAgent
 from declarative_agent_sdk.utils import save_to_file
 from declarative_agent_sdk.agent_factory import AgentFactory
+from declarative_agent_sdk.agent_registry import AgentRegistry
 from utils.remove_think_content import remove_think_content
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ INSTRUCTION_FILE_PATH = AGENT_NAME + "/SKILL.md"
 
 def create_chapter_agent(name: str) -> AIAgent:
     agent = AgentFactory.from_yaml_file('chapter_agent/configs/chapter_agent.yaml')
+    AgentRegistry.register(agent, category='chapter')
     logger.info(f"Chapter agent '{name}' created from YAML config.")
 
     return agent

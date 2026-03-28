@@ -13,6 +13,7 @@ from declarative_agent_sdk.utils import save_to_file
 from skills.collation.scripts.create_pdf_file import create_pdf_file
 from declarative_agent_sdk.tool_registry import ToolRegistry
 from declarative_agent_sdk.agent_factory import AgentFactory
+from declarative_agent_sdk.agent_registry import AgentRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,7 @@ OUTPUT_PDF_LOCATION = "workspace/collation_response.pdf"
 def create_collation_agent(name: str) -> AIAgent:
     ToolRegistry.register("create_pdf_file", create_pdf_file)
     agent = AgentFactory.from_yaml_file('collation_agent/configs/collation_agent.yaml')
+    AgentRegistry.register(agent, category='collation')
     logger.info(f"Collation agent '{name}' created from YAML config.")
 
     return agent

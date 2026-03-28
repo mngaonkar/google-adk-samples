@@ -17,6 +17,7 @@ from declarative_agent_sdk.ai_agent import AIAgent
 from agent_state import BookAgentState
 from declarative_agent_sdk.utils import save_to_file
 from declarative_agent_sdk.agent_factory import AgentFactory
+from declarative_agent_sdk.agent_registry import AgentRegistry
 from declarative_agent_sdk.constants import WORKSPACE_DIRECTORY
 from utils.remove_think_content import remove_think_content
 
@@ -24,6 +25,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 agent = AgentFactory.from_yaml_file('toc_agent/configs/toc_agent.yaml')
+AgentRegistry.register(agent, category='toc')
 
 logger.info("Table of Contents agent initialized.")
 

@@ -61,10 +61,48 @@ class ModelFactory:
             
             logger.info(f"Creating vLLM model: {model_name} at {endpoint_url}")
             return ModelFactory._create_vllm_model(model_name, endpoint_url, **kwargs)
+        elif provider.lower() == "openai":
+            # OpenAI-compatible model via LiteLLM
+            logger.info(f"Creating OpenAI-compatible model: {model_name}")
+            return ModelFactory._create_openai_model(model_name)
         
         else:
-            raise ValueError(f"Unsupported provider: {provider}. Supported providers: google, vllm")
+            raise ValueError(f"Unsupported provider: {provider}. Supported providers: google, vllm, openai")
     
+    @staticmethod
+    def _create_openai_model(model_name: str) -> Any:
+        """
+        Create an OpenAI model configuration.
+        
+        Args:
+            model_name: Name of the OpenAI model
+            
+        Returns:
+            Model name string
+        """
+        try:
+            from google.adk.models.lite_llm import LiteLlm
+            import os
+            
+            # Check OPENAI_API_KEY for OpenAI-compatible models
+            if "OPENAI_API_KEY" not in os.environ:
+                raise ValueError("OPENAI_API_KEY environment variable is required for OpenAI-compatible models")
+            
+            # LiteLLM requires openai/ prefix for OpenAI-compatible endpoints
+            prefixed_model = f"openai/{model_name}"
+            
+            # Create a simple model configuration object
+            openai_model = LiteLlm(
+                model=prefixed_model
+            )
+            logger.info(f"Created OpenAI-compatible model config: {prefixed_model}")
+            return openai_model
+            
+        except ImportError:
+            raise ImportError(
+                "google.adk.models.lite_llm.LiteLlm is not available. Please install litellm to use OpenAI provider: pip install litellm"
+            )
+
     @staticmethod
     def _create_vllm_model(model_name: str, endpoint_url: str, **kwargs) -> Any:
         """

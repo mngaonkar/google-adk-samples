@@ -8,8 +8,8 @@ skills_directory: /Users/mahadevgaonkar/code/google-adk-samples/skills
 skills:
   - ace-music
 output_key: music_agent_response
-provider: vllm
-model: Qwen/Qwen3-4B-Thinking-2507-FP8
+provider: openai
+model: gpt-4o
 endpoint:
   url: http://mahadev-ms7d28:8000/v1
   max_tokens: 4096

@@ -2,9 +2,6 @@
 
 name: storage_agent
 description: An agent to profile storage on the computer
-tools:
-  - tavily_search
-  - exec_command
 tools_approval_required: true
 skills_directory: /Users/mahadevgaonkar/code/google-adk-samples/skills
 skills:

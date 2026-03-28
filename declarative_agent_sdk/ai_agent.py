@@ -36,7 +36,7 @@ async def dynamic_tool_callback(
         logger.debug(f"Injected agent_name into tool args: {args['agent_name']}")
     
     # Wait for user confirmation before executing potentially dangerous tool
-    user_input = input(f"Tool '{tool.name}' is about to be called with args: {args}. Do you want to proceed? (y/n): ")
+    user_input = input(f"\033[93mTool '{tool.name}' is about to be called with args: {args}. Do you want to proceed? (y/n): \033[0m")
     if user_input.lower() != 'y':
         logger.info(f"Tool '{tool.name}' call aborted by user.")
         return None  # Returning None can signal to skip the tool call
@@ -153,7 +153,9 @@ class AIAgent(Agent):
                 else:
                     # Already a tool object
                     resolved_tools.append(tool_item)
-
+        else:
+            logger.info("No tools specified in configuration, using all tools from built-in registry")
+            resolved_tools.extend(ToolRegistry.get_all())
         logger.info(f"resolved tools : {resolved_tools}")
         
         # Define automatic function calling config

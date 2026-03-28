@@ -17,7 +17,7 @@ click==8.3.1
 cloudpickle==3.1.1
 cryptography==46.0.3
 dataclasses-json==0.6.7
-declarative-agent-sdk @ git+https://github.com/mngaonkar/google-adk-samples.git@2bf360ca5ca304737521797030bb0b0de4848c33#subdirectory=declarative_agent_sdk
+declarative-agent-sdk @ git+https://github.com/mngaonkar/google-adk-samples.git#subdirectory=declarative_agent_sdk
 distro==1.9.0
 docstring_parser==0.17.0
 fastapi==0.135.1

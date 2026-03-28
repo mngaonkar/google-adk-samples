@@ -1,0 +1,16 @@
+# Storage agent configuration file
+
+name: autoresearch
+description: An agent to perform autonomous research experiments
+tools_approval_required: true
+skills_directory: /Users/mahadevgaonkar/code/google-adk-samples/skills
+workspace_directory: /Users/mahadevgaonkar/code/google-adk-samples/autoresearch/workspace
+skills:
+  - autoresearch
+output_key: autoresearch_agent_response
+provider: vllm
+model: Qwen/Qwen3-4B-Thinking-2507-FP8
+endpoint:
+  url: http://mahadev-ms7d28:8000/v1
+  max_tokens: 4096
+  temperature: 0.8

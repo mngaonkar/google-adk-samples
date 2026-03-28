@@ -1,10 +1,6 @@
 ---
 name: autoresearch
 description: Autonomous research skills to experiment with model training and evaluation.
-metadata: 
-  requires:
-    bins: ["nmap", "curl"]
-    env: ["TAVILY_API_KEY"]
 ---
 
 # autoresearch

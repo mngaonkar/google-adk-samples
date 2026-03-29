@@ -18,7 +18,7 @@ from declarative_agent_sdk.ai_agent import AIAgent
 from declarative_agent_sdk.utils import save_to_file
 from declarative_agent_sdk.agent_factory import AgentFactory
 from declarative_agent_sdk.agent_registry import AgentRegistry
-from utils.remove_think_content import remove_think_content
+from declarative_agent_sdk.utils import remove_think_content
 
 logger = logging.getLogger(__name__)
 

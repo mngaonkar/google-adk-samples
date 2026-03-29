@@ -9,8 +9,8 @@ tools:
 skills:
   - chapter
 output_key: chapter_agent_response
-provider: vllm
-model: Qwen/Qwen3-4B-Thinking-2507-FP8
+provider: google
+model: gemini-2.5-pro
 tools_approval_required: false
 endpoint:
   url: http://mahadev-ms7d28:8000/v1

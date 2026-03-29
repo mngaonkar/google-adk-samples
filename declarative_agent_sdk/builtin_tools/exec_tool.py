@@ -247,3 +247,97 @@ def exec_async(
         logger.error(f"Error starting async process: {command} - {e}", exc_info=True)
     
     return result
+
+
+def check_exec_async(job_id: int) -> Dict[str, Union[bool, int, str]]:
+    """
+    Check the status of an asynchronously started process by exec_async.
+    
+    Args:
+        job_id: Process ID (PID) returned from exec_async
+        
+    Returns:
+        Dictionary containing:
+            - running: bool - Whether process is still running
+            - exit_code: int or None - Exit code if process finished (only available for child processes)
+            - success: bool - Whether process completed successfully (exit code 0)
+            - error: str - Error message if any
+            
+    Example:
+        # Start a process
+        result = exec_async("long_running_command")
+        pid = result['pid']
+        
+        # Check status later
+        status = check_exec_async(pid)
+        if status['running']:
+            print("Process still running")
+        elif status['success']:
+            print("Process completed successfully")
+        else:
+            print(f"Process finished (exit code: {status.get('exit_code', 'unknown')})")
+            
+    Note:
+        Exit code is only available for child processes that haven't been reaped yet.
+        For other processes, you can only determine if they're running or not.
+    """
+    import os
+    import errno
+    
+    result = {
+        'running': False,
+        'exit_code': None,
+        'success': False,
+        'error': None
+    }
+    
+    try:
+        # First, try to check if it's a child process and get its exit status
+        pid, status = os.waitpid(job_id, os.WNOHANG)
+        
+        if pid == 0:
+            # Process is still running
+            result['running'] = True
+            logger.debug(f"Process {job_id} is still running")
+        else:
+            # Process has finished
+            result['running'] = False
+            
+            # Extract exit code from status
+            if os.WIFEXITED(status):
+                exit_code = os.WEXITSTATUS(status)
+                result['exit_code'] = exit_code
+                result['success'] = (exit_code == 0)
+                logger.info(f"Process {job_id} exited with code {exit_code}")
+            elif os.WIFSIGNALED(status):
+                signal_num = os.WTERMSIG(status)
+                result['exit_code'] = -signal_num
+                result['error'] = f"Process terminated by signal {signal_num}"
+                logger.warning(f"Process {job_id} terminated by signal {signal_num}")
+                
+    except ChildProcessError:
+        # Not a child process or already reaped, try to check if process exists
+        try:
+            # Send signal 0 to check if process exists (doesn't actually send a signal)
+            os.kill(job_id, 0)
+            # If we get here, process exists and is running
+            result['running'] = True
+            logger.debug(f"Process {job_id} is running (not a child process)")
+        except OSError as e:
+            if e.errno == errno.ESRCH:
+                # Process doesn't exist (finished)
+                result['running'] = False
+                logger.info(f"Process {job_id} has finished (exit code unknown)")
+            elif e.errno == errno.EPERM:
+                # Process exists but we don't have permission to check
+                result['running'] = True
+                result['error'] = "Process exists but permission denied to check status"
+                logger.warning(f"Permission denied checking process {job_id}")
+            else:
+                raise
+                
+    except Exception as e:
+        result['error'] = f"Error checking process status: {str(e)}"
+        logger.error(f"Error checking process {job_id}: {e}", exc_info=True)
+    
+    return result

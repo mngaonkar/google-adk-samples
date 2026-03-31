@@ -14,7 +14,7 @@ import uuid
 import logging
 from utils.read_file import read_file_content
 from agent_state import BookAgentState
-from declarative_agent_sdk.ai_agent import AIAgent
+from declarative_agent_sdk import AIAgent
 from declarative_agent_sdk.utils import save_to_file
 from declarative_agent_sdk.agent_factory import AgentFactory
 from declarative_agent_sdk.agent_registry import AgentRegistry

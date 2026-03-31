@@ -7,8 +7,8 @@ instruction_file:
 skills:
   - toc
 output_key: toc_agent_response
-provider: google
-model: gemini-2.5-pro
+provider: openai
+model: gpt-4.1
 tools_approval_required: false
 endpoint:
   url: http://mahadev-ms7d28:8000/v1

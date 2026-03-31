@@ -3,7 +3,7 @@ from declarative_agent_sdk.agent_logging import setup_logging, get_logger
 setup_logging(level="INFO")
 logger = get_logger(__name__)
 
-from declarative_agent_sdk import AgentFactory, AgentRegistry
+from declarative_agent_sdk import AgentFactory, AgentRegistry, AIAgentServer
 import os
 from declarative_agent_sdk.utils import save_to_file, remove_think_content
 from dotenv import load_dotenv
@@ -48,6 +48,23 @@ def wazy_agent(input: str) -> None:
 
     return
 
+def run_server():
+    agent = AgentFactory.from_yaml_file('configs/wazy_agent.yaml')
+    AgentRegistry.register(agent, category='travel')
+    logger.info("Wazy agent initialized and registered.")
+
+    server = AIAgentServer(agent, host="0.0.0.0", port=9999)
+    logger.info("Wazy agent server initialized.")
+    server.run()
+
+def run_once(input: str) -> None:
+    response = wazy_agent(input)
+    print("\n" + "="*60)
+    print("Wazy Agent Response:")
+    print("="*60 + "\n")
+    print(response)
+
 if __name__ == "__main__":
     test_input = "Plan a road trip from San Francisco to Los Angeles with stops every 2 hours."
-    wazy_agent(test_input)
+    # run_once(test_input)
+    run_server()

@@ -6,6 +6,8 @@ from google.genai import types
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.models.llm_request import LlmRequest
 from google.adk.models.llm_response import LlmResponse
+from a2a.types import AgentCard, AgentSkill
+from vertexai.preview.reasoning_engines.templates.a2a import create_agent_card
 
 from declarative_agent_sdk.utils import read_from_file
 from declarative_agent_sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY, WORKSPACE_DIRECTORY
@@ -69,6 +71,7 @@ class AIAgent(Agent):
     skill_directory: str = Field(default=SKILLS_DIRECTORY, exclude=True)
     workspace_directory: str = Field(default=WORKSPACE_DIRECTORY, exclude=True)
     skills : List[str] = Field(default_factory=list, exclude=True)
+    agent_card: Optional[AgentCard] = Field(default=None, exclude=True)
    
     def __init__(self, 
                  name: str, 
@@ -197,6 +200,11 @@ class AIAgent(Agent):
         object.__setattr__(self, 'skill_directory', skills_directory)
         object.__setattr__(self, 'workspace_directory', workspace_directory)
         object.__setattr__(self, 'skills', skills or [])
+        object.__setattr__(self, 'agent_card', None)  
+
+        # Create agent card
+        skill_descriptions = skills_registry.get_all_skills_description()
+        self.agent_card = self._create_agent_card(name, description, skill_descriptions)
 
         # Create workspace directory
         try:
@@ -312,3 +320,23 @@ class AIAgent(Agent):
             Dictionary containing final_response, session_id, and output_key_data
         """
         return asyncio.run(self.run(input_text, app_name, user_id))
+
+    def _create_agent_card(self, name: str, description: str, skills: Dict[str, str] | None):
+        agent_skills = []
+
+        if skills:
+            for skill, skill_description in skills.items():
+                skill_card = AgentSkill(
+                    id=skill,
+                    name=skill,
+                    description=skill_description,
+                    tags = [skill]
+                )
+                agent_skills.append(skill_card)
+
+        agent_card = create_agent_card(
+            agent_name=name,
+            description=description,
+            skills=agent_skills
+        )
+        return agent_card

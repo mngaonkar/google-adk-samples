@@ -9,7 +9,7 @@ and declarative.
 import yaml
 from typing import Any, Dict, List, Optional
 from pathlib import Path
-from declarative_agent_sdk.ai_agent import AIAgent
+from declarative_agent_sdk import AIAgent
 from declarative_agent_sdk.constants import DEFAULT_MODEL, SKILLS_DIRECTORY, WORKSPACE_DIRECTORY
 from declarative_agent_sdk.tool_registry import ToolRegistry
 from declarative_agent_sdk.model_factory import ModelFactory

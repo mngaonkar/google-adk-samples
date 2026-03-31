@@ -1,10 +1,10 @@
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
-from declarative_agent_sdk.ai_agent import AIAgent
+from declarative_agent_sdk import AIAgent
 from a2a.utils.errors import ServerError
 from a2a.utils import new_agent_text_message
 from a2a.server.tasks import TaskUpdater
-from agent_logging import get_logger
+from declarative_agent_sdk.agent_logging import get_logger
 logger = get_logger(__name__)
 
 from a2a.types import (

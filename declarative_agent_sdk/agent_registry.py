@@ -8,7 +8,7 @@ to maintain separation of concerns.
 
 from typing import Dict, List, Any, Optional
 from declarative_agent_sdk.agent_logging import get_logger
-from declarative_agent_sdk.ai_agent import AIAgent
+from declarative_agent_sdk import AIAgent
 
 logger = get_logger(__name__)
 

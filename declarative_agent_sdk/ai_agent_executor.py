@@ -29,6 +29,7 @@ class AIAgentExecutor(AgentExecutor):
         query = ""
         action = None
 
+        logger.info(f"Received execution request with context: {context.message}")
         if context.message and context.message.parts:
             logger.info("Executing AI agent with message parts: %s", context.message.parts)
             for i, part in enumerate(context.message.parts):
@@ -54,7 +55,9 @@ class AIAgentExecutor(AgentExecutor):
         
         logger.info(f"User input query: {query}")
         
-        if context.task_id or context.context_id:
+        logger.info(f"task_id: {context.task_id}, context_id: {context.context_id}")
+        
+        if not context.task_id or not context.context_id:
             raise ServerError(error=UnsupportedOperationError(message="task_id or context_id is None"))
         
         updater = TaskUpdater(event_queue, context.task_id, context.context_id)
@@ -63,7 +66,7 @@ class AIAgentExecutor(AgentExecutor):
         await updater.start_work()
 
         try:
-            result = self._agent.run_sync(query)
+            result = await self._agent.run(query)
             logger.info(f"Agent execution result: {result}")
             if result:
                 await updater.add_artifact([Part(root=TextPart(text=str(result)))], name="final_response")

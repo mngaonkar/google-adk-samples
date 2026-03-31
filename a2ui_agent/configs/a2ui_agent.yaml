@@ -1,0 +1,11 @@
+# Wayz agent configuration file
+
+name: a2ui_agent
+description: An agent to create dynamic user interfaces using the A2UI schema.
+tools_approval_required: false
+skills_directory: /Users/mahadevgaonkar/code/google-adk-samples/skills
+skills:
+  - a2ui
+output_key: a2ui_agent_response
+provider: google
+model: gemini-2.5-flash

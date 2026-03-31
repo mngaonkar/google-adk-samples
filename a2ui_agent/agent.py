@@ -24,7 +24,7 @@ agent = AgentFactory.from_yaml_file('configs/a2ui_agent.yaml')
 AgentRegistry.register(agent, category='ui')
 logger.info("A2UI agent initialized and registered.")
 
-server = AIAgentServer(agent)
+server = AIAgentServer(agent, host="0.0.0.0", port=9999)
 logger.info("A2UI agent server initialized.")
 
 def a2ui_agent(input: str) -> Any:

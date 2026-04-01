@@ -1,6 +1,7 @@
-from typing import TypedDict, List
+from typing import TypedDict, Any
+from typing_extensions import Required
 
-class AgentState(TypedDict):
+class AgentState(TypedDict, total=False):
     """Defines the state structure for agents in the AI workflow.
     
     Attributes:
@@ -8,5 +9,6 @@ class AgentState(TypedDict):
 
         Add additional keys (agent name) for storing agent output
     """
-    user_query: str
+    user_query: Required[str]
     final_answer: str
+    agents_output: Required[dict[str, Any]]

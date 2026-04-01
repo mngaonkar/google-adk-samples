@@ -43,7 +43,11 @@ dependencies = [
     "pydantic>=2.0.0",
     "pyyaml>=6.0",
     "langgraph>=0.1.0",
-    "tiktoken>=0.5.0",  # For token management
+    "tiktoken>=0.5.0",
+    "a2ui-agent",
+    "a2a-sdk",
+    "litellm",
+    "jsonschema"
 ]
 
 # Optional dependency groups

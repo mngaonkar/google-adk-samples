@@ -7,7 +7,7 @@ from google.adk.planners import PlanReActPlanner
 from google.adk.code_executors import BuiltInCodeExecutor
 from google.adk.agents.sequential_agent import SequentialAgent
 import logging
-from agent_state import BookAgentState
+from declarative_agent_sdk import AgentState
 from declarative_agent_sdk import AIAgent
 from declarative_agent_sdk.utils import save_to_file
 from skills.collation.scripts.create_pdf_file import create_pdf_file
@@ -32,12 +32,15 @@ def create_collation_agent(name: str) -> AIAgent:
 agent = create_collation_agent("collation_agent")
 logger.info("Collation agent initialized.")
 
-def collation_agent(state: BookAgentState) -> BookAgentState:
+def collation_agent(state: AgentState) -> AgentState:
     """Collate chapter content into a single PDF file."""
-    chapter_locations = state["chapter_locations"]
-    toc_location = state.get("toc_location", "")
-    collation_agent = create_collation_agent(name="collation_agent")
+    chapter_locations = state.get("agents_output", {}).get("chapter_agent", [])
+    assert chapter_locations, "Chapter locations missing in state['agents_output']['chapter_agent']"
+    
+    toc_location = state.get("agents_output", {}).get("toc_agent", "")
+    assert toc_location, "TOC location missing in state['agents_output']['toc_agent']"
 
+    collation_agent = create_collation_agent(name="collation_agent")
     user_prompt = f"""Create a PDF book from the following inputs:
     - toc_location: Table of Contents location: {toc_location}
     - chapter_locations: Chapter markdown files: {chapter_locations}
@@ -49,7 +52,7 @@ def collation_agent(state: BookAgentState) -> BookAgentState:
 
     collation_response = result["final_response"]
     save_to_file(collation_response, OUTPUT_PDF_LOCATION)
-    state["final_content"] = OUTPUT_PDF_LOCATION
     logger.info(f"Collation agent response saved to {OUTPUT_PDF_LOCATION}")
 
+    state["final_answer"] = OUTPUT_PDF_LOCATION
     return state

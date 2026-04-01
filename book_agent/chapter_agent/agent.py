@@ -13,7 +13,7 @@ import asyncio
 import uuid
 import logging
 from utils.read_file import read_file_content
-from agent_state import BookAgentState
+from declarative_agent_sdk import AgentState
 from declarative_agent_sdk import AIAgent
 from declarative_agent_sdk.utils import save_to_file
 from declarative_agent_sdk.agent_factory import AgentFactory
@@ -33,10 +33,10 @@ def create_chapter_agent(name: str) -> AIAgent:
     return agent
 
 
-async def chapter_agent_parallel(state: BookAgentState) -> None:
+async def chapter_agent_parallel(state: AgentState) -> AgentState:
     """Process all chapters in parallel using async."""
-    toc_file = state["agent_output"].get("toc_agent", "")
-    assert toc_file, "TOC file location missing in state['agent_output']['toc_agent']"
+    toc_file = state.get("agents_output", {}).get("toc_agent", "")
+    assert toc_file, "TOC file location missing in state['agents_output']['toc_agent']"
 
     toc_content = read_file_content(toc_file)
     logger.info(f"Read TOC content from {toc_file} ({len(toc_content)} characters)")
@@ -84,5 +84,9 @@ async def chapter_agent_parallel(state: BookAgentState) -> None:
     
     # Sort results by chapter index and store locations
     results.sort(key=lambda x: x[0])
-    state["chapter_locations"].extend([file_path for _, file_path in results])
-    logger.info(f"All {len(results)} chapters processed successfully") 
+    chapter_locations = []
+    chapter_locations.extend([file_path for _, file_path in results])
+    logger.info(f"All {len(results)} chapters processed successfully")
+
+    state["agents_output"]["chapter_agent"] = chapter_locations
+    return state

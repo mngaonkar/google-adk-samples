@@ -14,7 +14,7 @@ import uuid
 import logging
 from utils.read_file import read_file_content
 from declarative_agent_sdk import AIAgent
-from agent_state import BookAgentState
+from declarative_agent_sdk import AgentState
 from declarative_agent_sdk.utils import save_to_file
 from declarative_agent_sdk.agent_factory import AgentFactory
 from declarative_agent_sdk.agent_registry import AgentRegistry
@@ -29,10 +29,11 @@ AgentRegistry.register(agent, category='toc')
 
 logger.info("Table of Contents agent initialized.")
 
-def toc_agent(state: BookAgentState) -> BookAgentState:
-    result = agent.run_sync(state["user_query"])
+def toc_agent(state: AgentState) -> AgentState:
+    result = agent.run_sync(state.get("user_query", ""))
     logger.debug(f"TOC agent generated response: {result}")
     agent_output_file = os.path.join(WORKSPACE_DIRECTORY, agent.name)
+    agent_output_file = os.path.abspath(agent_output_file)
 
     if not os.path.exists(WORKSPACE_DIRECTORY):
         os.makedirs(WORKSPACE_DIRECTORY)
@@ -41,7 +42,10 @@ def toc_agent(state: BookAgentState) -> BookAgentState:
     response = remove_think_content(reponse)
     save_to_file(response, agent_output_file)
     logger.info(f"TOC agent response saved to {agent_output_file}")
-    state["toc_location"] = agent_output_file
-    state["agent_output"][agent.name] = agent_output_file
+
+    if state.get("agents_output") is None:
+        state["agents_output"] = {}
+
+    state["agents_output"][f"{agent.name}"] = agent_output_file
 
     return state

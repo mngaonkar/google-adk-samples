@@ -39,4 +39,4 @@ def invoke_agent(query):
     else:
         logger.error(f"Failed to invoke agent. Status code: {response.status_code}")
 
-invoke_agent("Create a UI with a welcome message, a list of 3 restaurants with images and ratings, and a button to refresh the list.")
+invoke_agent("steve wozniak")

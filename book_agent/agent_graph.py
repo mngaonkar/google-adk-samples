@@ -12,7 +12,7 @@ from chapter_agent.agent import chapter_agent_parallel
 from collation_agent.agent import collation_agent
 from skills.toc.scripts.validate_yaml import validate_yaml
 from declarative_agent_sdk import AIWorkflowServer
-from agent_state import BookAgentState
+from declarative_agent_sdk import AgentState
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -23,11 +23,13 @@ load_dotenv()
 # Register all skills at startup
 SkillRegistry.register_all_from_directory()
 
-def route_after_toc(state: BookAgentState) -> Literal["chapter_agent_parallel", "toc_agent"]:
+def route_after_toc(state: AgentState) -> Literal["chapter_agent_parallel", "toc_agent"]:
     """If TOC YAML is valid, proceed to chapters; otherwise retry toc_agent."""    
-    toc_location = state.get("agent_output", {}).get("toc_agent") or ""
+    logger.info(f"state in router: {state}")
+    toc_location = state.get("agents_output", {}).get("toc_agent", "")
     assert isinstance(toc_location, str), "Expected agent output 'toc_agent' to be a string"
 
+    logger.info(f"Routing after TOC agent. TOC location: {toc_location}")
     if not toc_location or not os.path.exists(toc_location):
         logger.warning("TOC location missing or file not found, re-running toc_agent")
         return "toc_agent"
@@ -51,7 +53,7 @@ WorkflowRegistry.register("route_after_toc", route_after_toc)
 
 workflow = WorkflowFactory.from_yaml_file(
         'configs/agents/book_workflow.yaml',
-        BookAgentState
+        AgentState
     )
 
 AGENT_VERSION = "v0.1"
@@ -69,27 +71,24 @@ async def run_once():
             break
 
         print(f"[{AGENT_NAME}] Creating the book...")
-        initial_state: BookAgentState = {
+        initial_state: AgentState = {
             "user_query": input_topic,
-            "agent_output": {},
-            "toc_location": "",
-            "chapter_locations": [],
-            "reasoning_steps": [],
-            "final_content": ""
+            "agents_output": {},
+            "final_answer": ""
         }
 
         graph = workflow.compile()
 
         final_state = await graph.ainvoke(initial_state)
         print("------------------------------------------------")
-        print("Final Content:", final_state["final_content"])
+        print("Final Content:", final_state["final_answer"])
         print("------------------------------------------------")
-        print("TOC Location:", final_state["toc_location"])
+        print("TOC Location:", final_state.get("agents_output", {}).get("toc_agent", ""))
         print("------------------------------------------------")
-        print("Chapter Locations:", final_state["chapter_locations"])
+        print("Chapter Locations:", final_state.get("agents_output", {}).get("chapter_agent", []))
         print("------------------------------------------------")
         print("Reasoning Steps:")
-        for step in final_state["reasoning_steps"]:
+        for step in final_state.get("reasoning_steps", []):
             print(step)
         print("------------------------------------------------")
 
@@ -105,5 +104,5 @@ def run_server():
 
 
 if __name__ == "__main__":
-    asyncio.run(run_once())
-    # run_server()
+    # asyncio.run(run_once())
+    run_server()

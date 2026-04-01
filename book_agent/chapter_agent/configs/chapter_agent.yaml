@@ -9,8 +9,8 @@ tools:
 skills:
   - chapter
 output_key: chapter_agent_response
-provider: openai
-model: gpt-4.1
+provider: vllm
+model: Qwen/Qwen3-4B-Thinking-2507-FP8
 tools_approval_required: false
 endpoint:
   url: http://mahadev-ms7d28:8000/v1

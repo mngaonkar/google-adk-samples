@@ -1,5 +1,4 @@
 from typing import Literal
-from agent_state import BookAgentState
 from utils.read_file import read_file_content
 from dotenv import load_dotenv
 import logging
@@ -7,12 +6,13 @@ import asyncio
 import os
 from declarative_agent_sdk.workflow_registry import WorkflowRegistry
 from declarative_agent_sdk.workflow_factory import WorkflowFactory
-from declarative_agent_sdk.tool_registry import ToolRegistry
 from declarative_agent_sdk.skill_registry import SkillRegistry
 from toc_agent.agent import toc_agent
 from chapter_agent.agent import chapter_agent_parallel
 from collation_agent.agent import collation_agent
 from skills.toc.scripts.validate_yaml import validate_yaml
+from declarative_agent_sdk import AIWorkflowServer
+from agent_state import BookAgentState
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -49,17 +49,16 @@ WorkflowRegistry.register("chapter_agent_parallel", chapter_agent_parallel)
 WorkflowRegistry.register("collation_agent", collation_agent)
 WorkflowRegistry.register("route_after_toc", route_after_toc)
 
-graph = WorkflowFactory.compile_from_yaml(
+workflow = WorkflowFactory.from_yaml_file(
         'configs/agents/book_workflow.yaml',
         BookAgentState
     )
-
 
 AGENT_VERSION = "v0.1"
 RELEASE_DATE = "2026-03-15"
 AGENT_NAME = f"Book Agent {AGENT_VERSION} ({RELEASE_DATE})"
 
-async def main():
+async def run_once():
     print("------------------------------------------------")
     print(f"{AGENT_NAME}")
     print("------------------------------------------------")
@@ -69,16 +68,17 @@ async def main():
         if input_topic.lower() == "exit":
             break
 
+        print(f"[{AGENT_NAME}] Creating the book...")
         initial_state: BookAgentState = {
+            "user_query": input_topic,
             "agent_output": {},
-            "topic_description": input_topic,
             "toc_location": "",
             "chapter_locations": [],
             "reasoning_steps": [],
             "final_content": ""
         }
 
-        print(f"[{AGENT_NAME}] Creating the book...")
+        graph = workflow.compile()
 
         final_state = await graph.ainvoke(initial_state)
         print("------------------------------------------------")
@@ -96,5 +96,14 @@ async def main():
         print(f"[{AGENT_NAME}] Book created successfully.")
         print("------------------------------------------------")
 
+
+def run_server():
+    graph = workflow.compile()
+    server = AIWorkflowServer(workflow, graph)
+    logger.info("Book agent server initialized.")
+    server.run()
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(run_once())
+    # run_server()

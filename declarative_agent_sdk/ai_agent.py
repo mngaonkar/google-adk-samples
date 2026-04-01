@@ -13,11 +13,11 @@ from declarative_agent_sdk.utils import read_from_file
 from declarative_agent_sdk.constants import DEFAULT_MODEL, MAX_REMOTE_CALLS, SKILLS_DIRECTORY, WORKSPACE_DIRECTORY
 from declarative_agent_sdk.agent_logging import get_logger
 from declarative_agent_sdk.token_utils import fit_to_context_window
-from declarative_agent_sdk.tool_registry import ToolRegistry, register_common_tools
+from declarative_agent_sdk.tool_registry import ToolRegistry
 import asyncio
 import uuid
 import os
-from typing import Optional, Any, Union, List, Callable, Dict
+from typing import Optional, Any, Union, List, Dict
 from pydantic import Field
 import declarative_agent_sdk.plugins.context_updater as context_updater
 

@@ -17,6 +17,8 @@ from pathlib import Path
 from langgraph.graph import StateGraph, START, END
 from declarative_agent_sdk.workflow_registry import WorkflowRegistry
 from declarative_agent_sdk.agent_logging import get_logger
+from declarative_agent_sdk import AIWorkflow
+from declarative_agent_sdk import AgentState
 
 logger = get_logger(__name__)
 
@@ -25,7 +27,7 @@ class WorkflowFactory:
     """Factory class to create LangGraph StateGraph workflows from YAML configuration."""
     
     @staticmethod
-    def from_yaml_file(yaml_file_path: str, state_class: type) -> StateGraph:
+    def from_yaml_file(yaml_file_path: str, state_class: type) -> AIWorkflow:
         """
         Create a StateGraph workflow from a YAML configuration file.
         
@@ -59,7 +61,7 @@ class WorkflowFactory:
         return WorkflowFactory.from_dict(config, state_class)
     
     @staticmethod
-    def from_dict(config: Dict[str, Any], state_class: type) -> StateGraph:
+    def from_dict(config: Dict[str, Any], state_class: type) -> AIWorkflow:
         """
         Create a StateGraph workflow from a configuration dictionary.
         
@@ -68,10 +70,11 @@ class WorkflowFactory:
             state_class: The state class type (e.g., AgentState)
             
         Returns:
-            StateGraph instance configured according to the dictionary
+            AIWorkflow instance configured according to the dictionary
         """
-        workflow_name = config.get('name', 'unnamed_workflow')
-        logger.info(f"Creating workflow '{workflow_name}' from configuration")
+        name = config.get('name', 'unnamed_workflow')
+        logger.info(f"Creating workflow '{name}' from configuration")
+        description = config.get('description', 'no description provided')
         
         # Create StateGraph
         workflow = StateGraph(state_class)
@@ -128,8 +131,8 @@ class WorkflowFactory:
                 logger.error(f"Failed to add conditional edge from '{from_node}': {e}")
                 raise
         
-        logger.info(f"Workflow '{workflow_name}' created successfully")
-        return workflow
+        logger.info(f"Workflow '{name}' created successfully")
+        return AIWorkflow(name, description, workflow, AgentState)
     
     @staticmethod
     def compile_from_yaml(yaml_file_path: str, state_class: type):
@@ -144,7 +147,7 @@ class WorkflowFactory:
             Compiled workflow ready for execution
         """
         workflow = WorkflowFactory.from_yaml_file(yaml_file_path, state_class)
-        return workflow.compile()
+        return workflow._graph.compile()
 
 
 def register_workflow_functions(functions: Dict[str, Callable]) -> None:

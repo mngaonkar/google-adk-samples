@@ -30,7 +30,7 @@ AgentRegistry.register(agent, category='toc')
 logger.info("Table of Contents agent initialized.")
 
 def toc_agent(state: BookAgentState) -> BookAgentState:
-    result = agent.run_sync(state["topic_description"])
+    result = agent.run_sync(state["user_query"])
     logger.debug(f"TOC agent generated response: {result}")
     agent_output_file = os.path.join(WORKSPACE_DIRECTORY, agent.name)
 

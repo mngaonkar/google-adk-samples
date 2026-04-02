@@ -5,10 +5,12 @@ from a2a.utils.errors import ServerError
 from a2a.utils import new_agent_text_message
 from a2a.server.tasks import TaskUpdater
 from declarative_agent_sdk.agent_logging import get_logger
+
 logger = get_logger(__name__)
 
 from a2a.types import (
     DataPart,
+    Message,
     Part,
     Task,
     TaskState,
@@ -28,6 +30,7 @@ class AIAgentExecutor(AgentExecutor):
         ui_event_part = None
         query = ""
         action = None
+        query_part = None
 
         logger.info(f"Received execution request with context: {context.message}")
         if context.message and context.message.parts:
@@ -75,8 +78,73 @@ class AIAgentExecutor(AgentExecutor):
             result = await self._agent.run(query)
             logger.info(f"Agent execution result: {result}")
             if result:
-                await updater.add_artifact([Part(root=TextPart(text=str(result)))], name="final_response")
-                await updater.complete()
+                # Send A2UI response with all messages together
+                try:                    
+                    from a2a.types import Message
+                    
+                    # Get the actual result text
+                    result_text = str(result.get("final_response", result)) if isinstance(result, dict) else str(result)
+                    
+                    # Send all A2UI messages together
+                    response_message = Message(
+                        role="agent",
+                        message_id=f"{context.task_id}-response",
+                        parts=[
+                            # 1. Begin rendering
+                            Part(root=DataPart(data={
+                                "beginRendering": {
+                                    "surfaceId": "main",
+                                    "root": "response"
+                                }
+                            })),
+                            # 2. Surface update (structure)
+                            Part(root=DataPart(data={
+                                "surfaceUpdate": {
+                                    "surfaceId": "main",
+                                    "components": [
+                                        {
+                                            "id": "response",
+                                            "component": {
+                                                "Text": {
+                                                    "text": {
+                                                        "path": "/result"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            })),
+                            # 3. Data model update (content)
+                            Part(root=DataPart(data={
+                                "dataModelUpdate": {
+                                    "surfaceId": "main",
+                                    "path": "/",
+                                    "contents": [
+                                        {
+                                            "key": "result",
+                                            "valueString": result_text
+                                        }
+                                    ]
+                                }
+                            }))
+                        ]
+                    )
+                    
+                    await updater.update_status(
+                        TaskState.completed,
+                        message=response_message,
+                        final=True
+                    )
+
+                except Exception as e:
+                    logger.warning(f"Failure sending A2UI response: {e}")
+                    # Fallback to plain text
+                    await updater.update_status(
+                        TaskState.completed,
+                        message=new_agent_text_message(str(result)),
+                        final=True
+                    )
         except Exception as e:
             logger.error(f"Error during agent execution: {e}")
             await updater.update_status(

@@ -13,6 +13,7 @@ from rich.markdown import Markdown
 load_dotenv()
 
 WORKSPACE_DIRECTORY = "workspace"
+PORT=10004 # hard-coded in UI side, need a fix
 
 def wazy_agent(input: str) -> None:
     agent = AgentFactory.from_yaml_file('configs/wazy_agent.yaml')
@@ -53,7 +54,7 @@ def run_server():
     AgentRegistry.register(agent, category='travel')
     logger.info("Wazy agent initialized and registered.")
 
-    server = AIAgentServer(agent, host="0.0.0.0", port=9999)
+    server = AIAgentServer(agent, host="0.0.0.0", port=PORT)
     logger.info("Wazy agent server initialized.")
     server.run()
 

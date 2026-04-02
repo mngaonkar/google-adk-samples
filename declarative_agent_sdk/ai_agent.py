@@ -204,7 +204,8 @@ class AIAgent(Agent):
 
         # Create agent card
         skill_descriptions = skills_registry.get_all_skills_description()
-        self.agent_card = self._create_agent_card(name, description, skill_descriptions)
+        # Don't pass URL during initialization - it will be set by AIAgentServer
+        self.agent_card = self._create_agent_card(name, description, skill_descriptions, url=None)
 
         # Create workspace directory
         try:
@@ -321,7 +322,7 @@ class AIAgent(Agent):
         """
         return asyncio.run(self.run(input_text, app_name, user_id))
 
-    def _create_agent_card(self, name: str, description: str, skills: Dict[str, str] | None):
+    def _create_agent_card(self, name: str, description: str, skills: Dict[str, str] | None, url: Optional[str] = None):
         agent_skills = []
 
         if skills:
@@ -339,4 +340,9 @@ class AIAgent(Agent):
             description=description,
             skills=agent_skills
         )
+        
+        # Override URL if provided (to match the actual server port)
+        if url:
+            agent_card.url = url
+        
         return agent_card

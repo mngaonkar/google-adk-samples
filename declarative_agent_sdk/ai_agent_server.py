@@ -19,6 +19,9 @@ class AIAgentServer():
 
         if self._agent.agent_card is None:
             raise ValueError("agent_card cannot be None")
+        
+        # Update agent card URL to match the actual server port
+        self._agent.agent_card.url = f"http://localhost:{port}/"
 
         request_handler = DefaultRequestHandler(
             agent_executor=self._agent_executor,

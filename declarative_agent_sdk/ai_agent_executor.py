@@ -37,6 +37,9 @@ class AIAgentExecutor(AgentExecutor):
                     if "userAction" in part.root.data:
                         ui_event_part = part.root.data["userAction"]
                         logger.info(f"Found userAction in DataPart: {ui_event_part}")
+                    elif "request" in part.root.data:
+                        query_part = part.root.data["request"]
+                        logger.info(f"Found request in DataPart with query: {query_part}")
                 elif isinstance(part.root, TextPart):
                     logger.info(f"Processing TextPart: {part.root.text}")
         
@@ -49,12 +52,15 @@ class AIAgentExecutor(AgentExecutor):
                 destination = ctx.get("destination")
                 logger.info(f"Finding route from {origin} to {destination}")
                 query = f"Find a route from {origin} to {destination}"
+        elif query_part:
+            query = query_part
+            logger.info(f"Using query from request DataPart: {query}")
         else:
             logger.warning("No userAction found in message parts. Executing agent with empty input.")
             query = context.get_user_input()
         
         logger.info(f"User input query: {query}")
-        
+    
         logger.info(f"task_id: {context.task_id}, context_id: {context.context_id}")
         
         if not context.task_id or not context.context_id:

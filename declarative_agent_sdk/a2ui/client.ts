@@ -58,15 +58,19 @@ export class A2UIClient {
 
     if (response.ok) {
       const data = (await response.json()) as A2AServerPayload;
+      console.log("Received response from server:", data);
+      console.log("Data type check - is array:", Array.isArray(data), "has error:", "error" in data);
       const messages: v0_8.Types.ServerToClientMessage[] = [];
       if ("error" in data) {
         throw new Error(data.error);
       } else {
         for (const item of data) {
+          console.log("Processing item:", item, "kind:", item.kind);
           if (item.kind === "text") continue;
           messages.push(item.data);
         }
       }
+      console.log("Final messages to process:", messages);
       return messages;
     }
 

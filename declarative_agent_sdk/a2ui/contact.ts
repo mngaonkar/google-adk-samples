@@ -249,12 +249,12 @@ export class A2UIContactFinder extends SignalWatcher(LitElement) {
       }}
     >
       <h1 class="typography-f-sf typography-v-r typography-w-400 color-c-p30">
-        Contact Finder
+        Tell us about your trip, from where to where?
       </h1>
       <div>
         <input
           required
-          value="Casey Smith"
+          value="Plan a trip from Fremont to Las Vegas"
           autocomplete="off"
           id="body"
           name="body"
@@ -379,16 +379,23 @@ export class A2UIContactFinder extends SignalWatcher(LitElement) {
     this.#requesting = true;
     const messages = await this.#sendMessage(request);
 
+    console.log("About to process messages:", messages);
     this.#lastMessages = messages;
 
     // this.#processor.clearSurfaces(); // Removed to allow partial updates
     this.#processor.processMessages(messages);
+    console.log("After processing, surfaces:", Array.from(this.#processor.getSurfaces().keys()));
+    console.log("Surface data:", Array.from(this.#processor.getSurfaces().entries()));
+    
     this.renderVersion++; // Force re-render of surfaces
     this.requestUpdate();
 
     const cardSurface = this.#processor.getSurfaces().get('contact-card');
     if (cardSurface) {
+      console.log("Card surface found:", cardSurface);
       // Deeply log the data model for the card
+    } else {
+      console.log("No contact-card surface found!");
     }
   }
 

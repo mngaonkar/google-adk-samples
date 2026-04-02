@@ -4,8 +4,10 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+A2A_URL = "http://localhost:10004"
+
 def get_agent_card():
-    url = "http://localhost:8000/.well-known/agent-card.json"
+    url = f"{A2A_URL}/.well-known/agent-card.json"
     response = requests.get(url)
     if response.status_code == 200:
         agent_card = response.json()
@@ -14,7 +16,7 @@ def get_agent_card():
         logger.error(f"Failed to fetch agent card. Status code: {response.status_code}")
 
 def invoke_agent(query):
-    url = "http://localhost:8000/"
+    url = A2A_URL 
     payload = {
         "jsonrpc": "2.0",
         "id": "req-001",
@@ -39,4 +41,4 @@ def invoke_agent(query):
     else:
         logger.error(f"Failed to invoke agent. Status code: {response.status_code}")
 
-invoke_agent("steve wozniak")
+invoke_agent("plan a trip from Fremont, CA to Las Vegas")

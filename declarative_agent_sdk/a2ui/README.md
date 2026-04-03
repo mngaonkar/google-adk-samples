@@ -111,7 +111,7 @@ If you encounter module resolution errors:
 
 ## Project Structure
 
-- `contact.ts` - Main contact component
+- `main.ts` - Main chat interface component
 - `ui/` - UI components and styles
 - `middleware/` - Server middleware
 - `vite.config.ts` - Vite configuration

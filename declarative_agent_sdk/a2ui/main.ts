@@ -45,11 +45,11 @@ import { Context } from "@a2ui/lit/ui";
 // @ts-ignore
 import { renderMarkdown } from "@a2ui/markdown-it";
 
-// Register custom components for the contact app
+// Register custom components for the A2UI app
 registerContactComponents();
 
-@customElement("a2ui-contact")
-export class A2UIContactFinder extends SignalWatcher(LitElement) {
+@customElement("a2ui-main")
+export class A2UIMain extends SignalWatcher(LitElement) {
   connectedCallback() {
     super.connectedCallback();
   }

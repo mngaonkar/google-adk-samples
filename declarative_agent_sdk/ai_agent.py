@@ -72,6 +72,10 @@ class AIAgent(Agent):
     workspace_directory: str = Field(default=WORKSPACE_DIRECTORY, exclude=True)
     skills : List[str] = Field(default_factory=list, exclude=True)
     agent_card: Optional[AgentCard] = Field(default=None, exclude=True)
+    runner: Optional[Runner] = Field(default=None, exclude=True)
+    session_service: Optional[InMemorySessionService] = Field(default=None, exclude=True)
+    session_id: Optional[str] = Field(default=None, exclude=True)
+    user_id: str = Field(default="user_id", exclude=True)
    
     def __init__(self, 
                  name: str, 
@@ -215,6 +219,30 @@ class AIAgent(Agent):
             logger.error(f"Failed to create output directory {workspace_directory}: {e}")
             raise
 
+        object.__setattr__(self, 'session_service', None)
+        object.__setattr__(self, 'session_id', None)
+        object.__setattr__(self, 'user_id', None)
+        object.__setattr__(self, 'runner', None)
+
+        self.session_service = InMemorySessionService()
+        self.session_id = uuid.uuid4().hex
+        self.user_id = "user_id"
+        
+        # Create session synchronously (since __init__ cannot be async)
+        asyncio.run(self.session_service.create_session(
+            app_name=self.name,
+            user_id=self.user_id,
+            session_id=self.session_id,
+        ))
+        
+        # Create runner
+        self.runner = Runner(
+            agent=self,
+            app_name=self.name,
+            session_service=self.session_service,
+            # plugins=[SmartContextFilterPlugin(get_updated_context_func=get_updated_context)]
+        )
+
     async def run(self, 
                   input_text: str, 
                   app_name: Optional[str] = None, 
@@ -233,24 +261,10 @@ class AIAgent(Agent):
                 - session_id: The session ID used
                 - output_key_data: Data stored in output_key (if configured)
         """
-        app_name = app_name or self.name
-        session_service = InMemorySessionService()
-        session_id = uuid.uuid4().hex
-        
-        # Create session
-        await session_service.create_session(
-            app_name=app_name,
-            user_id=user_id,
-            session_id=session_id,
-        )
-        
-        # Create runner
-        runner = Runner(
-            agent=self,
-            app_name=app_name,
-            session_service=session_service,
-            # plugins=[SmartContextFilterPlugin(get_updated_context_func=get_updated_context)]
-        )
+        # Ensure required attributes are initialized
+        assert self.runner is not None, "Runner not initialized"
+        assert self.session_id is not None, "Session ID not initialized"
+        assert self.session_service is not None, "Session service not initialized"
         
         # Apply token truncation if configured
         processed_input = input_text
@@ -274,9 +288,10 @@ class AIAgent(Agent):
         final_response = ""
         
         # Run async loop
-        async for event in runner.run_async(
-            user_id=user_id,
-            session_id=session_id,
+        logger.info(f"runner = {self.runner} session_id = {self.session_id} user_id = {self.user_id}")
+        async for event in self.runner.run_async(
+            user_id=self.user_id,
+            session_id=self.session_id,
             new_message=content
         ):
             if event.content and event.content.parts:
@@ -291,17 +306,17 @@ class AIAgent(Agent):
         # Get output_key data if configured
         output_key_data = None
         if self.output_key:
-            session = await session_service.get_session(
-                app_name=app_name,
-                user_id=user_id,
-                session_id=session_id
+            session = await self.session_service.get_session(
+                app_name=self.name,
+                user_id=self.user_id,
+                session_id=self.session_id
             )
             if session:
                 output_key_data = session.state.get(self.output_key)
         
         return {
             "final_response": final_response,
-            "session_id": session_id,
+            "session_id": self.session_id,
             "output_key_data": output_key_data
         }
     

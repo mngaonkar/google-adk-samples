@@ -26,21 +26,16 @@ def save_to_file(content: str, file_path: str) -> str:
 
 def remove_think_content(content: str) -> str:
     """
-    Remove "THINK:" content from the given string.
+    Remove all content from the start until </think> tag.
 
     Args:
         content: The input string that may contain "<think> </think>" content.
 
     Returns:
-        A string with all "<think> </think>" content removed.
+        A string with all content removed from start up to and including "</think>".
     """
     import re
-    # Use regex to remove all occurrences of <think>...</think>
-    cleaned_content = content.split("</think>")  # Take content after the first </think>
-    if len(cleaned_content) > 1:
-        cleaned_content = cleaned_content[1]
-    else:
-        cleaned_content = cleaned_content[0]
-
-
+    # Use regex to remove all content from start till </think>, including the tags
+    pattern = re.compile(r'.*?</think>', re.DOTALL)
+    cleaned_content = re.sub(pattern, '', content)
     return cleaned_content.strip()

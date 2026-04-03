@@ -5,6 +5,7 @@ from a2a.utils.errors import ServerError
 from a2a.utils import new_agent_text_message
 from a2a.server.tasks import TaskUpdater
 from declarative_agent_sdk.agent_logging import get_logger
+from declarative_agent_sdk.utils import remove_think_content
 
 logger = get_logger(__name__)
 
@@ -84,6 +85,7 @@ class AIAgentExecutor(AgentExecutor):
                     
                     # Get the actual result text
                     result_text = str(result.get("final_response", result)) if isinstance(result, dict) else str(result)
+                    result_text = remove_think_content(result_text)
                     
                     # Send all A2UI messages together
                     response_message = Message(

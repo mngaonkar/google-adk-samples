@@ -80,7 +80,7 @@ export class A2UIMain extends SignalWatcher(LitElement) {
       :host {
         display: flex;
         flex-direction: column;
-        max-width: 640px;
+        width: 100%;
         margin: 0 auto;
         height: 100vh;
         overflow: hidden;

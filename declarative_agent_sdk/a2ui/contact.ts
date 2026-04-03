@@ -78,65 +78,107 @@ export class A2UIContactFinder extends SignalWatcher(LitElement) {
     unsafeCSS(v0_8.Styles.structuralStyles),
     css`
       :host {
-        display: block;
+        display: flex;
+        flex-direction: column;
         max-width: 640px;
         margin: 0 auto;
-        min-height: 100%;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      #chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      #messages-area {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
       }
 
       #surfaces {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         gap: 16px;
         width: 100%;
-        padding: var(--bb-grid-size-3) 0;
         animation: fadeIn 1s cubic-bezier(0, 0, 0.3, 1) 0.3s backwards;
-        align-items: flex-start;
 
         & a2ui-surface {
           width: 100%;
-          flex: 1;
         }
+      }
+
+      #input-area {
+        flex-shrink: 0;
+        border-top: 1px solid var(--p-90);
+        background: var(--n-100);
+        padding: 16px;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
       }
 
       form {
         display: flex;
         flex-direction: column;
-        flex: 1;
-        gap: 16px;
-        align-items: center;
-        padding: 16px 0;
-        animation: fadeIn 1s cubic-bezier(0, 0, 0.3, 1) 1s backwards;
+        gap: 8px;
+        width: 100%;
+
+        & h1 {
+          margin: 0 0 8px 0;
+          font-size: 14px;
+          font-weight: 400;
+          color: var(--p-30);
+        }
 
         & > div {
           display: flex;
-          flex: 1;
-          gap: 16px;
+          gap: 12px;
           align-items: center;
           width: 100%;
 
           & > input {
             display: block;
             flex: 1;
-            border-radius: 32px;
-            padding: 16px 24px;
-            border: 1px solid var(--p-60);
-            font-size: 16px;
+            border-radius: 24px;
+            padding: 12px 20px;
+            border: 1px solid var(--p-80);
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+
+            &:focus {
+              border-color: var(--p-40);
+            }
           }
 
           & > button {
             display: flex;
             align-items: center;
+            justify-content: center;
             background: var(--p-40);
             color: var(--n-100);
             border: none;
-            padding: 8px 16px;
-            border-radius: 32px;
+            padding: 12px;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
             opacity: 0.5;
+            transition: all 0.2s;
 
             &:not([disabled]) {
               cursor: pointer;
               opacity: 1;
+
+              &:hover {
+                background: var(--p-30);
+                transform: scale(1.05);
+              }
             }
           }
         }
@@ -213,13 +255,31 @@ export class A2UIContactFinder extends SignalWatcher(LitElement) {
     message: SnackbarMessage;
     replaceAll: boolean;
   }> = [];
+  #messagesArea: HTMLElement | null = null;
 
   render() {
-    return [
-      this.#maybeRenderForm(),
-      this.#maybeRenderData(),
-      this.#maybeRenderError(),
-    ];
+    return html`
+      <div id="chat-container">
+        <div id="messages-area" ${(el: Element) => {
+          this.#messagesArea = el as HTMLElement;
+          this.#scrollToBottom();
+        }}>
+          ${this.#maybeRenderData()}
+          ${this.#maybeRenderError()}
+        </div>
+        <div id="input-area">
+          ${this.#renderInputForm()}
+        </div>
+      </div>
+    `;
+  }
+
+  #scrollToBottom() {
+    requestAnimationFrame(() => {
+      if (this.#messagesArea) {
+        this.#messagesArea.scrollTop = this.#messagesArea.scrollHeight;
+      }
+    });
   }
 
   #maybeRenderError() {
@@ -228,9 +288,7 @@ export class A2UIContactFinder extends SignalWatcher(LitElement) {
     return html`<div class="error">${this.#error}</div>`;
   }
 
-  #maybeRenderForm() {
-    if (this.#requesting) return nothing;
-    if (this.#lastMessages.length > 0) return nothing;
+  #renderInputForm() {
     return html`<form
       @submit=${async (evt: Event) => {
         evt.preventDefault();
@@ -246,15 +304,15 @@ export class A2UIContactFinder extends SignalWatcher(LitElement) {
         request: body,
       };
         await this.#sendAndProcessMessage(message);
+        // Clear the input after sending
+        evt.target.reset();
       }}
     >
-      <h1 class="typography-f-sf typography-v-r typography-w-400 color-c-p30">
-        Tell us about your trip, from where to where?
-      </h1>
       <div>
         <input
           required
-          value="Plan a trip from Fremont to Las Vegas"
+          value=""
+          placeholder="Type your message..."
           autocomplete="off"
           id="body"
           name="body"
@@ -269,24 +327,22 @@ export class A2UIContactFinder extends SignalWatcher(LitElement) {
   }
 
   #maybeRenderData() {
-    if (this.#requesting && this.#processor.getSurfaces().size === 0) {
+    const surfacesMap = new Map(this.#processor.getSurfaces());
+    const surfaces = Array.from(surfacesMap.entries()).sort(([a], [b]) => {
+      return a.localeCompare(b);
+    });
+
+    if (this.#requesting && surfaces.length === 0) {
       return html` <div class="pending">
         <div class="spinner"></div>
         <div class="loading-text">Awaiting an answer...</div>
       </div>`;
     }
 
-    const surfacesMap = new Map(this.#processor.getSurfaces());
-    const surfaces = Array.from(surfacesMap.entries()).sort(([a], [b]) => {
-      // "org-chart-view" comes first (left), "contact-card" second (right)
-      if (a === 'org-chart-view') return -1;
-      if (b === 'org-chart-view') return 1;
-      return a.localeCompare(b);
-    });
-
-
     if (surfaces.length === 0) {
-      return nothing;
+      return html`<div style="flex: 1; display: flex; align-items: center; justify-content: center; color: var(--p-60); font-size: 14px;">
+        Start a conversation by typing a message below
+      </div>`;
     }
 
     return html`<section id="surfaces">
@@ -295,8 +351,8 @@ export class A2UIContactFinder extends SignalWatcher(LitElement) {
         ([surfaceId]) => surfaceId,
         ([surfaceId, surface]) => {
           return html`
-            <div style="position: relative; height: 100%; display: flex; flex-direction: column;">
-              ${this.#requesting && surfaceId === 'contact-card' ? html`
+            <div style="position: relative; display: flex; flex-direction: column; background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+              ${this.#requesting ? html`
                 <div style="
                   position: absolute;
                   top: 0;
@@ -389,6 +445,7 @@ export class A2UIContactFinder extends SignalWatcher(LitElement) {
     
     this.renderVersion++; // Force re-render of surfaces
     this.requestUpdate();
+    this.#scrollToBottom();
 
     const cardSurface = this.#processor.getSurfaces().get('contact-card');
     if (cardSurface) {

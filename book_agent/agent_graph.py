@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
+PORT=10004
+
 # Register all skills at startup
 SkillRegistry.register_all_from_directory()
 
@@ -98,7 +100,7 @@ async def run_once():
 
 def run_server():
     graph = workflow.compile()
-    server = AIWorkflowServer(workflow, graph)
+    server = AIWorkflowServer(workflow, graph, host="0.0.0.0", port=PORT)
     logger.info("Book agent server initialized.")
     server.run()
 

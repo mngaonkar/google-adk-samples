@@ -76,6 +76,7 @@ class AIAgent(Agent):
     session_service: Optional[InMemorySessionService] = Field(default=None, exclude=True)
     session_id: Optional[str] = Field(default=None, exclude=True)
     user_id: str = Field(default="user_id", exclude=True)
+    event_loop_running: bool = Field(default=False, exclude=True)
    
     def __init__(self, 
                  name: str, 
@@ -223,17 +224,25 @@ class AIAgent(Agent):
         object.__setattr__(self, 'session_id', None)
         object.__setattr__(self, 'user_id', None)
         object.__setattr__(self, 'runner', None)
+        object.__setattr__(self, "event_loop_running", False)
 
         self.session_service = InMemorySessionService()
         self.session_id = uuid.uuid4().hex
         self.user_id = "user_id"
         
         # Create session synchronously (since __init__ cannot be async)
-        asyncio.run(self.session_service.create_session(
-            app_name=self.name,
-            user_id=self.user_id,
-            session_id=self.session_id,
-        ))
+        try:
+            asyncio.get_running_loop()
+            object.__setattr__(self, "event_loop_running", True)
+        except RuntimeError:
+            # Event loop is not running safe to create session.
+            asyncio.run(self.session_service.create_session(
+                app_name=self.name,
+                user_id=self.user_id,
+                session_id=self.session_id,
+            
+            ))
+            object.__setattr__(self, "event_loop_running", False)
         
         # Create runner
         self.runner = Runner(
@@ -266,6 +275,15 @@ class AIAgent(Agent):
         assert self.session_id is not None, "Session ID not initialized"
         assert self.session_service is not None, "Session service not initialized"
         
+        # Delayed session creation if event loop is not running.
+        if self.event_loop_running:
+            await self.session_service.create_session(
+                app_name=self.name,
+                user_id=self.user_id,
+                session_id=self.session_id,
+            
+            )
+
         # Apply token truncation if configured
         processed_input = input_text
         if self.enable_truncation and self.context_window and self.max_output_tokens:

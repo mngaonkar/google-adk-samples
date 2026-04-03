@@ -1,97 +1,37 @@
-from a2a.server.agent_execution import AgentExecutor, RequestContext
+from a2a.server.agent_execution import RequestContext
 from a2a.server.events import EventQueue
-from a2a.utils.errors import ServerError
 from langgraph.graph.state import CompiledStateGraph
-
-from a2a.utils import new_agent_text_message
 from a2a.server.tasks import TaskUpdater
 from declarative_agent_sdk.agent_logging import get_logger
+from declarative_agent_sdk.base_executor import BaseExecutor
+
 logger = get_logger(__name__)
 
 from a2a.types import (
-    DataPart,
     Part,
-    Task,
-    TaskState,
     TextPart,
-    UnsupportedOperationError,
 )
 
-class AIWorkflowExecutor(AgentExecutor):
+class AIWorkflowExecutor(BaseExecutor):
     def __init__(self, graph: CompiledStateGraph):
         self._graph = graph
         self._state = None
 
-    async def execute(
-      self,
-      context: RequestContext,
-      event_queue: EventQueue,
-  ) -> None:
-        ui_event_part = None
-        query: str = ""
-        action = None
-
-        logger.info(f"Received execution request with context: {context.message}")
-        if context.message and context.message.parts:
-            logger.info("Executing AI agent with message parts: %s", context.message.parts)
-            for i, part in enumerate(context.message.parts):
-                if isinstance(part.root, DataPart):
-                    if "userAction" in part.root.data:
-                        ui_event_part = part.root.data["userAction"]
-                        logger.info(f"Found userAction in DataPart: {ui_event_part}")
-                    elif "request" in part.root.data:
-                        query_part = part.root.data["request"]
-                        logger.info(f"Found request in DataPart with query: {query_part}")
-                elif isinstance(part.root, TextPart):
-                    logger.info(f"Processing TextPart: {part.root.text}")
+    async def _execute_implementation(
+        self,
+        query: str,
+        context: RequestContext,
+        updater: TaskUpdater
+    ) -> None:
+        """Execute the LangGraph workflow."""
+        self._state = {
+            "user_query": query,
+            "agent_output": {}
+        }
         
-        if ui_event_part:
-            action = ui_event_part.get("action")
-            ctx = ui_event_part.get("context", {})
-
-            if action == "find_route":
-                origin = ctx.get("origin")
-                destination = ctx.get("destination")
-                logger.info(f"Finding route from {origin} to {destination}")
-                query = f"Find a route from {origin} to {destination}"
-        elif query_part:
-            query = query_part
-            logger.info(f"Using query from request DataPart: {query}")
-        else:
-            logger.warning("No userAction found in message parts. Executing agent with empty input.")
-            query = context.get_user_input()
+        result = await self._graph.ainvoke(self._state)
+        logger.info(f"Agent execution result: {result}")
         
-        logger.info(f"User input query: {query}")
-        
-        logger.info(f"task_id: {context.task_id}, context_id: {context.context_id}")
-        
-        if not context.task_id or not context.context_id:
-            raise ServerError(error=UnsupportedOperationError(message="task_id or context_id is None"))
-        
-        updater = TaskUpdater(event_queue, context.task_id, context.context_id)
-        if not context.current_task:
-            await updater.submit()
-        await updater.start_work()
-
-        try:
-            self._state = {
-                "user_query": query,
-                "agent_output": {}
-            }
-            result = await self._graph.ainvoke(self._state)
-            logger.info(f"Agent execution result: {result}")
-            if result:
-                await updater.add_artifact([Part(root=TextPart(text=str(result)))], name="final_response")
-                await updater.complete()
-        except Exception as e:
-            logger.error(f"Error during agent execution: {e}")
-            await updater.update_status(
-                TaskState.failed,
-                message=new_agent_text_message(f"An error occurred: {str(e)}"),
-                final=True,
-            )
-
-    async def cancel(
-      self, context: RequestContext, event_queue: EventQueue
-  ) -> None:
-        raise ServerError(error=UnsupportedOperationError())
+        if result:
+            await updater.add_artifact([Part(root=TextPart(text=str(result)))], name="final_response")
+            await updater.complete()

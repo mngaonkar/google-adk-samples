@@ -31,7 +31,7 @@ Verify the format and ensure all stops are included in the correct order.
 
 🗺️ **How to Build the Apple Maps URL**  
 Use the format:  
-`maps://?daddr=Stop1+to:Stop2+to:Destination`
+`https://maps.apple.com/directions?source=Fremont,+CA&destination=Yosemite+National+Park&waypoint=Blaze+Pizza,+Tracy,+CA&waypoint=Mountain+Mike's+Pizza,+Merced,+CA&mode=driving`
 Verify the format and ensure all stops are included in the correct order.
 
 If more than 9 stops, suggest breaking into segments or linking only major stops.

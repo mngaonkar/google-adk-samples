@@ -10,8 +10,8 @@ skills_directory: /Users/mahadevgaonkar/code/google-adk-samples/skills
 skills:
   - wazy
 output_key: wazy_agent_response
-provider: google
-model: gemini-2.5-flash
+provider: openai
+model: gpt-4o
 endpoint:
   url: http://mahadev-ms7d28:8000/v1
   max_tokens: 4096

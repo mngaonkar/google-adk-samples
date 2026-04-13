@@ -6,21 +6,25 @@ This directory contains Docker configuration for running Declarative Agent SDK a
 
 The Dockerfile creates a **generic base image** that:
 - Installs the `declarative-agent-sdk` from GitHub
-- Contains only Python dependencies (no agent code or skills)
+- Includes Node.js and pre-built A2UI with dependencies
+- Contains Python packages and Node.js dependencies
 - Allows any agent to be mounted at runtime (no rebuild needed for code changes)
 - Allows skills directory to be mounted at runtime
+- Allows A2UI to be mounted at runtime for development (with hot reload)
 
 This means:
-- ✅ One image works for all agents
+- ✅ One image works for all agents and UI
 - ✅ Agent code changes don't require rebuilding
+- ✅ UI dependencies pre-installed (fast startup)
+- ✅ UI code changes hot-reload automatically when mounted
 - ✅ Fast iteration during development
-- ✅ Smaller, reusable images
 
 ## Files
 
 **In declarative_agent_sdk/:**
 - **Dockerfile**: Multi-stage Docker build configuration
 - **build-docker.sh**: Script to build the generic Docker image (run once)
+- **run_ui.sh**: Script to run the A2UI development server
 - **.dockerignore**: Files to exclude from Docker build context
 - **DOCKER.md**: This documentation
 
@@ -69,6 +73,31 @@ docker run -d \
   declarative-agent:latest
 ```
 
+### 3. Run the A2UI Development Server (Optional)
+
+The same image includes Node.js and the built A2UI application:
+
+```bash
+cd declarative_agent_sdk
+chmod +x run_ui.sh
+./run_ui.sh
+```
+
+This starts a Vite development server on port 5173 (default) with hot-reload:
+- **URL**: http://localhost:5173
+- **Container**: a2ui-dev-server
+- **Hot reload**: Changes to a2ui files reload automatically
+
+**View logs:**
+```bash
+docker logs -f a2ui-dev-server
+```
+
+**Stop the server:**
+```bash
+docker stop a2ui-dev-server
+```
+
 ## Configuration
 
 ### Environment Variables
@@ -109,6 +138,35 @@ This means:
 - No local SDK files copied into the image
 - Image can be built anywhere (doesn't need the repo locally)
 - SDK version is locked to the GitHub commit
+
+### A2UI Build & Mounting
+
+During the Docker build, A2UI and its dependencies are cloned from GitHub and built:
+```dockerfile
+# Clone google-adk-samples for a2ui
+RUN git clone https://github.com/mngaonkar/google-adk-samples.git /tmp/google-adk-samples && \
+    cp -r /tmp/google-adk-samples/declarative_agent_sdk/a2ui /app/a2ui && \
+    rm -rf /tmp/google-adk-samples
+
+# Clone Google's A2UI repo for renderer dependencies
+RUN git clone https://github.com/google/A2UI.git /app/google-a2ui
+
+# Fix package.json references, install, and build
+RUN sed -i 's|file:../../../A2UI/|file:../google-a2ui/|g' package.json
+RUN npm install && npm run build
+```
+
+For development, the local a2ui directory is **mounted at runtime**, overlaying the built version:
+```bash
+-v "${A2UI_DIR}:/app/a2ui"
+```
+
+This means:
+- A2UI contact demo and Google A2UI dependencies sourced from GitHub
+- npm dependencies pre-installed and TypeScript pre-compiled in the image
+- Fast container startup (no build step needed)
+- Mount local a2ui for development → hot reload works immediately with Vite
+- No need to run `npm install` on container start
 
 ### Agent Mounting
 

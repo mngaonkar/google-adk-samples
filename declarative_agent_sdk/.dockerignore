@@ -83,7 +83,7 @@ music_agent/
 storage_agent/
 wazy_agent/
 
-# SDK (installed from GitHub, not copied)
+# SDK (installed from GitHub, not copied from build context)
 declarative_agent_sdk/
 
 # Build artifacts

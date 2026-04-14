@@ -51,8 +51,11 @@ let client: A2AClient | null = null;
 const createOrGetClient = async () => {
   if (!client) {
     // Create a client pointing to the agent's Agent Card URL.
+    // Use VITE_AGENT_URL from env, or default to host.docker.internal for Docker
+    const agentUrl = process.env.VITE_AGENT_URL || "http://host.docker.internal:10004";
+    console.log(`[a2a-middleware] Initializing A2A client with agent URL: ${agentUrl}`);
     client = await A2AClient.fromCardUrl(
-      "http://localhost:10004/.well-known/agent-card.json",
+      `${agentUrl}/.well-known/agent-card.json`,
       { fetchImpl: fetchWithCustomHeader }
     );
   }

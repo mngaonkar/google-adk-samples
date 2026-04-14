@@ -3,6 +3,8 @@ from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
+import socket
+import os
 
 
 from declarative_agent_sdk.agent_logging import get_logger
@@ -20,8 +22,25 @@ class AIAgentServer():
         if self._agent.agent_card is None:
             raise ValueError("agent_card cannot be None")
         
-        # Update agent card URL to match the actual server port
-        self._agent.agent_card.url = f"http://localhost:{port}/"
+        # Determine the actual URL for the agent card
+        # Priority: AGENT_CARD_URL env var > detected IP > host parameter > localhost
+        card_host = os.getenv("AGENT_CARD_URL")
+        if not card_host:
+            if host == "0.0.0.0":
+                # Try to detect the actual IP address
+                try:
+                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    s.connect(("8.8.8.8", 80))
+                    card_host = s.getsockname()[0]
+                    s.close()
+                except Exception:
+                    card_host = socket.gethostname()
+            else:
+                card_host = host
+        
+        # Update agent card URL to match the actual server
+        self._agent.agent_card.url = f"http://{card_host}:{port}/"
+        logger.info(f"Agent card URL set to: {self._agent.agent_card.url}")
 
         request_handler = DefaultRequestHandler(
             agent_executor=self._agent_executor,

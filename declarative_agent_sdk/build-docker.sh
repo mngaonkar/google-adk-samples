@@ -28,7 +28,6 @@ docker build \
     --no-cache \
     -t "${IMAGE_NAME}:${TAG}" \
     -f declarative_agent_sdk/Dockerfile \
-    --build-arg BUILDKIT_INLINE_CACHE=1 \
     .
 
 echo ""

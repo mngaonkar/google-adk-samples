@@ -38,6 +38,11 @@ RUN echo "==== Installing Google A2UI renderer web_core dependencies ====" && \
     npm install --verbose && \
     npm run build --verbose
 
+WORKDIR /app/google-a2ui/renderers/markdown/markdown-it
+RUN echo "==== Installing Google A2UI renderer markdown dependencies ====" && \
+    npm install --verbose && \
+    npm run build --verbose
+
 WORKDIR /app/google-a2ui/renderers/lit
 RUN echo "==== Installing Google A2UI renderer lit dependencies ====" && \
     npm install --verbose && \
@@ -47,10 +52,16 @@ WORKDIR /app/a2ui
 
 # Fix package.json to reference the cloned A2UI location
 RUN sed -i 's|../../../A2UI/|../google-a2ui/|g' package.json && \
-    sed -i 's|../../../A2UI/|../google-a2ui/|g' tsconfig.json && \
-    echo "==== Updated package.json dependencies ====" && \
-    cat package.json && \
-    echo "==== Removing old package-lock.json ====" && \
+    echo "==== Updated package.json ===="
+
+RUN cat package.json
+
+RUN sed -i 's|../../../A2UI/|../google-a2ui/|g' tsconfig.json && \
+     echo "==== Updated tsconfig.json ===="
+
+RUN cat tsconfig.json
+
+RUN echo "==== Removing old package-lock.json ====" && \
     rm -f package-lock.json
 
 # Install dependencies and build with verbose output
@@ -94,10 +105,6 @@ COPY --from=builder /app/google-a2ui /app/google-a2ui
 
 # Skills directory will be mounted at runtime
 # Agent directory will be mounted at runtime
-# A2UI directory can be mounted at runtime for development (overrides built version)
-
-# Set Python path
-ENV PYTHONPATH=/app:${PYTHONPATH}
 
 # Create workspace directory
 RUN mkdir -p /app/agent/workspace

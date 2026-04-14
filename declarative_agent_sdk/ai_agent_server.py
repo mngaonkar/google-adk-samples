@@ -23,9 +23,8 @@ class AIAgentServer():
             raise ValueError("agent_card cannot be None")
         
         # Determine the actual URL for the agent card
-        # Priority: AGENT_CARD_URL env var > detected IP > host parameter > localhost
-        card_host = os.getenv("AGENT_CARD_URL")
-        if not card_host:
+        # Priority: published_url in YAML > host parameter > detected IP address
+        if self._agent.agent_card.url is None:
             if host == "0.0.0.0":
                 # Try to detect the actual IP address
                 try:
@@ -37,11 +36,9 @@ class AIAgentServer():
                     card_host = socket.gethostname()
             else:
                 card_host = host
-        
-        # Update agent card URL if not set in YAML
-        if self._agent.agent_card.url is None:
+
             self._agent.agent_card.url = f"http://{card_host}:{port}/"
-            logger.info(f"Agent card URL set to: {self._agent.agent_card.url}")
+            logger.info(f"Agent card URL set to: {self._agent.agent_card.url}")    
 
         request_handler = DefaultRequestHandler(
             agent_executor=self._agent_executor,

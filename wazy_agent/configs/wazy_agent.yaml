@@ -18,3 +18,4 @@ endpoint:
   temperature: 0.8
 enable_truncation: True
 context_window: 28288
+publish_url: "https://declarative-agent-382266101555.us-west2.run.app"

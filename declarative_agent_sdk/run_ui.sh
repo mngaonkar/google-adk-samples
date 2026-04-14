@@ -44,7 +44,7 @@ docker run -d \
   -e VITE_AGENT_URL="http://10.0.0.64:10004" \
   -w /app/a2ui \
   "${IMAGE_NAME}:${TAG}" \
-  npx vite dev --host 0.0.0.0
+  npx vite dev --host 0.0.0.0 --port ${PORT}
 
 echo ""
 echo "========================================"

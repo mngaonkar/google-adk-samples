@@ -24,7 +24,8 @@ echo "Project root: ${PROJECT_ROOT}"
 # Build the Docker image from project root to include skills
 cd "${PROJECT_ROOT}"
 
-docker build \
+docker buildx build \
+    --platform linux/amd64,linux/arm64 \
     --no-cache \
     -t "${IMAGE_NAME}:${TAG}" \
     -f declarative_agent_sdk/Dockerfile \

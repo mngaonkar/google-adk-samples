@@ -6,13 +6,13 @@ tools:
   - tavily_search
   - google_maps
 tools_approval_required: false
-skills_directory: /Users/mahadevgaonkar/code/google-adk-samples/skills
+skills_directory: /app/skills
 skills:
   - wazy
 output_key: wazy_agent_response
-provider: openai
-model: gpt-4o
+provider: vllm
+model: Qwen/Qwen3-4B-Thinking-2507-FP8
 endpoint:
-  url: http://mahadev-ms7d28:8000/v1
+  url: http://10.0.0.147:8000/v1
   max_tokens: 4096
   temperature: 0.8

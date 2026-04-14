@@ -42,10 +42,11 @@ fi
 docker run -d \
     --rm \
     --name "${CONTAINER_NAME}" \
-    --add-host mahadev-ms7d28:10.0.0.147 \
+    --add-host host.docker.internal:host-gateway \
     -p "${PORT}:10004" \
     --env-file "${SCRIPT_DIR}/.env" \
     -e PORT=10004 \
+    -e SDK_LOG_LEVEL=DEBUG \
     -v "${SCRIPT_DIR}:/app/agent" \
     -v "${PROJECT_ROOT}/skills:/app/skills" \
     "${IMAGE_NAME}:${TAG}"

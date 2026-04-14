@@ -70,6 +70,7 @@ export default async () => {
     },
     server: {
       host: true, // Listen on all network interfaces (0.0.0.0), enabling both localhost and 127.0.0.1 simultaneously
+      allowedHosts: ['.run.app', 'localhost']
     },
   } satisfies UserConfig;
 };

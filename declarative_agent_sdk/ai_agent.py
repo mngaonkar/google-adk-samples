@@ -77,6 +77,7 @@ class AIAgent(Agent):
     session_id: Optional[str] = Field(default=None, exclude=True)
     user_id: str = Field(default="user_id", exclude=True)
     event_loop_running: bool = Field(default=False, exclude=True)
+    publish_url: Optional[str] = Field(default=None, exclude=True)
    
     def __init__(self, 
                  name: str, 
@@ -94,7 +95,8 @@ class AIAgent(Agent):
                  max_output_tokens: Optional[int] = None,
                  enable_truncation: bool = False,
                  truncate_strategy: str = "end",
-                 safety_margin: int = 100):
+                 safety_margin: int = 100,
+                 publish_url: Optional[str] = None):
         """
         Initialize the AI Agent with tools, skills, and instructions.
         
@@ -117,6 +119,7 @@ class AIAgent(Agent):
             truncate_strategy: How to truncate ("start", "end", or "middle")
             tools_approval_required: If True, requires user approval before executing certain tools
             safety_margin: Extra tokens to reserve for safety (default: 100)
+            publish_url: Optional URL to set in the agent card for discovery (e.g., when running on a server)
         
         Workflow:
             1. Reads instruction text from instruction_file
@@ -205,12 +208,13 @@ class AIAgent(Agent):
         object.__setattr__(self, 'skill_directory', skills_directory)
         object.__setattr__(self, 'workspace_directory', workspace_directory)
         object.__setattr__(self, 'skills', skills or [])
-        object.__setattr__(self, 'agent_card', None)  
+        object.__setattr__(self, 'agent_card', None)
+        object.__setattr__(self, 'publish_url', publish_url)  
 
         # Create agent card
         skill_descriptions = skills_registry.get_all_skills_description()
         # Don't pass URL during initialization - it will be set by AIAgentServer
-        self.agent_card = self._create_agent_card(name, description, skill_descriptions, url=None)
+        self.agent_card = self._create_agent_card(name, description, skill_descriptions, url=publish_url)
 
         # Create workspace directory
         try:

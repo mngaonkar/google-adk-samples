@@ -158,6 +158,7 @@ class AgentFactory:
         enable_truncation = config.get('enable_truncation', False)
         truncate_strategy = config.get('truncate_strategy', 'end')
         safety_margin = config.get('safety_margin', 100)
+        publish_url = config.get('publish_url', None)
         
         # Create model object using ModelFactory
         # Build kwargs dynamically to avoid passing None values
@@ -205,7 +206,8 @@ class AgentFactory:
             enable_truncation=enable_truncation,
             truncate_strategy=truncate_strategy,
             safety_margin=safety_margin,
-            workspace_directory=workspace_directory
+            workspace_directory=workspace_directory,
+            publish_url=publish_url
         )
         
         return agent

@@ -10,9 +10,11 @@ skills_directory: /app/skills
 skills:
   - wazy
 output_key: wazy_agent_response
-provider: vllm
-model: Qwen/Qwen3-4B-Thinking-2507-FP8
+provider: openai
+model: gpt-4.1
 endpoint:
   url: http://10.0.0.147:8000/v1
   max_tokens: 4096
   temperature: 0.8
+enable_truncation: True
+context_window: 28288

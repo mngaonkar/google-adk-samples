@@ -12,8 +12,8 @@ from rich.markdown import Markdown
 
 load_dotenv()
 
-WORKSPACE_DIRECTORY = "workspace"
-PORT=10004 # hard-coded in UI side, need a fix
+WORKSPACE_DIRECTORY = os.getenv("WORKSPACE_DIRECTORY", "workspace")
+PORT=int(os.getenv("PORT", 10004))
 
 def wazy_agent(input: str) -> None:
     agent = AgentFactory.from_yaml_file('configs/wazy_agent.yaml')

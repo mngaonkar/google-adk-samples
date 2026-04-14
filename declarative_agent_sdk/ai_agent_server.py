@@ -38,9 +38,10 @@ class AIAgentServer():
             else:
                 card_host = host
         
-        # Update agent card URL to match the actual server
-        self._agent.agent_card.url = f"http://{card_host}:{port}/"
-        logger.info(f"Agent card URL set to: {self._agent.agent_card.url}")
+        # Update agent card URL if not set in YAML
+        if self._agent.agent_card.url is None:
+            self._agent.agent_card.url = f"http://{card_host}:{port}/"
+            logger.info(f"Agent card URL set to: {self._agent.agent_card.url}")
 
         request_handler = DefaultRequestHandler(
             agent_executor=self._agent_executor,
